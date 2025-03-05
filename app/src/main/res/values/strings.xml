@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">MyWindow</string>
+    <string name="title_activity_maps">MapsActivity</string>
+    <string name="title_activity_maps_home">maps_home</string>
+    <string name="google_api_key">AIzaSyAQ_jeIVO2rA4oZTa3k7SMIHt-TBiGFMAY</string>
+    <string name="gomaps_api">AlzaSyuN5lGWKdnjdep8QvSrYf3r-CwfRwUvudG</string>
+    <string name="agree_terms"><u>Agree Terms &amp; Conditions</u></string>
+    <string name="gomaps_link">https://maps.gomaps.pro/maps/api/place/queryautocomplete/json?input=ind&amp;key=AlzaSyuN5lGWKdnjdep8QvSrYf3r-CwfRwUvudG</string>
+    <string name="underlined_text"><u>Forget Password...!</u></string>
+    <string name="dont_have_account"><u>Don't hava an Account</u></string>
+</resources>
