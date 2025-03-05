@@ -2,7 +2,7 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="text_feild_bg">#D99935</color>
-    <color name="registration_bg">#4D2F03</color>
-    <color name="button_bg">#2F1F06</color>
+    <color name="text_feild_bg">#FFFFFFFF</color>
+    <color name="registration_bg">#FF000000</color>
+    <color name="button_bg">#041D99</color>
 </resources>

@@ -21,6 +21,9 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
+            android:name=".terms_and_conditions"
+            android:exported="false" />
+        <activity
             android:name=".video_call_interface"
             android:exported="false" />
         <activity
@@ -46,13 +49,6 @@
 
         <activity
             android:name=".maps_home"
-            android:exported="false"
-            android:label="@string/title_activity_maps_home" />
-        <activity
-            android:name=".home_map"
-            android:exported="false" />
-        <activity
-            android:name=".p2_login_page"
             android:exported="false" />
         <activity
             android:name=".MainActivity"

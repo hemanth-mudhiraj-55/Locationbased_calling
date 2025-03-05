@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "168389865428",
+    "project_id": "mywindow-dbb47",
+    "storage_bucket": "mywindow-dbb47.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:168389865428:android:7f8ea3da3ef06d255d7041",
+        "android_client_info": {
+          "package_name": "com.example.a1"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCZlDYuYvniFjwOW7fiPb9SWx5JqRJ0jV0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -44,7 +44,7 @@ public class search_bar extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_maps_home); // ✅ Set correct layout
+        setContentView(R.layout.place_view); // ✅ Set correct layout
        // EdgeToEdge.enable(this);
 
 

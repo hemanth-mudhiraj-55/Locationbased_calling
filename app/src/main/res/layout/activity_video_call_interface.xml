@@ -26,7 +26,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Hemanth Mudhiraj"
+            android:text="Caller Id"
             android:textColor="@android:color/white"
             android:textSize="18sp"
             android:textStyle="bold" />
@@ -35,7 +35,7 @@
             android:id="@+id/call_timer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="00:24"
+            android:text="Timer"
             android:textColor="@android:color/white"
             android:textSize="16sp"/>
     </LinearLayout>
@@ -43,8 +43,8 @@
     <!-- Floating Self View (Small Video Preview) -->
     <FrameLayout
         android:id="@+id/self_video_container"
-        android:layout_width="120dp"
-        android:layout_height="160dp"
+        android:layout_width="150dp"
+        android:layout_height="300sp"
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="120dp"
         android:layout_marginEnd="16dp"
@@ -60,26 +60,28 @@
         <!-- Flip Camera & Flash -->
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
+            android:layout_height="300sp"
             android:gravity="end"
+            android:orientation="vertical"
             android:padding="5dp">
 
             <ImageButton
                 android:id="@+id/flip_camera"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_margin="2dp"
                 android:background="@drawable/rounded_button"
-                android:src="@drawable/ic_flip_camera"
-                android:contentDescription="Flip Camera"/>
+                android:contentDescription="Flip Camera"
+                android:src="@drawable/flip" />
 
             <ImageButton
                 android:id="@+id/flash_toggle"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_margin="2dp"
                 android:background="@drawable/rounded_button"
-                android:src="@drawable/ic_flash"
-                android:contentDescription="Flash Toggle"/>
+                android:contentDescription="Flash Toggle"
+                android:src="@drawable/flash" />
         </LinearLayout>
     </FrameLayout>
 
@@ -99,7 +101,7 @@
             android:layout_width="60dp"
             android:layout_height="60dp"
             android:background="@drawable/rounded_button"
-            android:src="@drawable/ic_fullscreen"
+            android:src="@drawable/full_size"
             android:contentDescription="Full Screen"/>
 
         <ImageButton
@@ -107,7 +109,7 @@
             android:layout_width="60dp"
             android:layout_height="60dp"
             android:background="@drawable/rounded_button"
-            android:src="@drawable/ic_video"
+            android:src="@drawable/cam_recorder"
             android:contentDescription="Toggle Video"/>
 
         <ImageButton
@@ -115,7 +117,7 @@
             android:layout_width="60dp"
             android:layout_height="60dp"
             android:background="@drawable/rounded_button"
-            android:src="@drawable/ic_mic"
+            android:src="@drawable/microphone"
             android:contentDescription="Mute Audio"/>
 
         <ImageButton
@@ -123,7 +125,7 @@
             android:layout_width="60dp"
             android:layout_height="60dp"
             android:background="@drawable/rounded_button"
-            android:src="@drawable/ic_speaker"
+            android:src="@drawable/volume"
             android:contentDescription="Toggle Speaker"/>
 
         <ImageButton
@@ -131,7 +133,7 @@
             android:layout_width="60dp"
             android:layout_height="60dp"
             android:background="@drawable/rounded_red_button"
-            android:src="@drawable/ic_end_call"
+            android:src="@drawable/end_call"
             android:contentDescription="End Call"/>
     </LinearLayout>
 

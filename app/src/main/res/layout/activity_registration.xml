@@ -2,8 +2,9 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:padding="20dp"
-    android:background="@color/registration_bg"
+    android:background="@drawable/login_bt_gradient"
     android:orientation="vertical"
 
     >
@@ -12,10 +13,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="5dp"
-        android:layout_marginBottom="5dp"
+        android:layout_marginTop="20sp"
+        android:layout_marginBottom="10sp"
         android:fontFamily="@font/splash_screen_font1"
         android:text="Create Account"
+
         android:textColor="@android:color/white"
         android:textSize="30dp"
         android:textStyle="bold" />
@@ -23,106 +25,176 @@
     <EditText
         android:id="@+id/uniqueUserId"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="  Unique User ID"
+        android:layout_height="40sp"
+        android:hint="  UNIQUE UID"
         android:drawableLeft="@drawable/card"
+        android:textColorHint="@color/registration_bg"
         android:textColor="@android:color/black"
         android:padding="10dp"
-        android:layout_margin="2dp"
+        android:layout_margin="4dp"
         android:background="@drawable/rounded_corner"/>
 
     <EditText
         android:id="@+id/fullName"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
         android:maxLength="30"
+        android:layout_height="40sp"
+        android:textColorHint="@color/registration_bg"
         android:digits="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ "
-        android:hint=" Full Name"
+        android:hint=" FULL NAME"
         android:drawableLeft="@drawable/user"
         android:textColor="@android:color/black"
-        android:layout_margin="2dp"
+        android:layout_margin="4dp"
         android:padding="10dp"
         android:background="@drawable/rounded_corner"/>
 
     <EditText
         android:id="@+id/et_email"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
+        android:layout_height="40sp"
+        android:layout_margin="4dp"
         android:background="@drawable/rounded_corner"
         android:drawableLeft="@drawable/ic_mail"
-        android:hint="EMAIL/MOBILE"
+        android:hint=" EMAIL/MOBILE"
         android:padding="10dp"
         android:textColorHint="@color/registration_bg" />
 
-    <EditText
-        android:id="@+id/emailOtp"
-        android:layout_width="165dp"
-        android:layout_height="wrap_content"
-        android:layout_margin="2dp"
-        android:background="@drawable/rounded_corner"
-        android:hint="   Email OTP"
-
-        android:inputType="number"
-        android:padding="10dp"
-        android:textColor="@android:color/black"/>
-
-    <EditText
-        android:id="@+id/mobileNumber"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Mobile Number"
-        android:textColor="@android:color/black"
-        android:inputType="phone"
-        android:padding="10dp"
-        android:layout_margin="2dp"
-        android:background="@drawable/rounded_corner"/>
+        android:visibility="gone"
+        >
+        <EditText
+            android:id="@+id/emailOtp"
 
-    <EditText
-        android:id="@+id/mobileOtp"
-        android:layout_width="158dp"
+            android:layout_width="165dp"
+            android:layout_height="50dp"
+            android:layout_margin="2dp"
+            android:maxLength="6"
+            android:background="@drawable/rounded_corner"
+            android:hint="   EMAIL OTP"
+            android:drawableLeft="@drawable/otp_copy"
+            android:inputType="number"
+            android:padding="10dp"
+
+            android:textColorHint="@color/registration_bg"/>
+<!--         this text view for the timer-->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="2dp"
-        android:background="@drawable/rounded_corner"
-        android:hint="  Mobile OTP"
-        android:drawableLeft="@drawable/business_and_finance"
-        android:inputType="number"
-        android:padding="10dp"
-        android:textColor="@android:color/black"/>
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        >
+
+        <com.hbb20.CountryCodePicker
+            android:id="@+id/ccp"
+            android:layout_width="wrap_content"
+            android:layout_height="40sp"
+            android:layout_margin="4dp"
+            android:background="@drawable/rounded_corner"
+            android:backgroundTint="@color/white"
+            app:ccp_arrowColor="@color/black"
+            app:ccp_contentColor="@color/black"
+            app:ccp_flagBorderColor="@color/black" />
+
+        <EditText
+            android:id="@+id/mobileNumber"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:maxLength="10"
+
+            android:hint="MOBILE NUMBER"
+            android:textColorHint="@color/registration_bg"
+            android:inputType="phone"
+            android:drawableLeft="@drawable/mobile"
+            android:padding="10dp"
+            android:layout_margin="4dp"
+            android:background="@drawable/rounded_corner"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:visibility="gone"
+        >
+
+        <EditText
+            android:id="@+id/mobileOtp"
+            android:layout_width="158dp"
+            android:layout_height="40dp"
+            android:layout_margin="2dp"
+            android:maxLength="6"
+            android:textColorHint="@color/registration_bg"
+            android:background="@drawable/rounded_corner"
+            android:hint="  Mobile OTP"
+            android:drawableLeft="@drawable/business_and_finance"
+            android:inputType="number"
+            android:padding="10dp"
+
+            android:textColor="@android:color/black"/>
+<!--        This text view for the timer-->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/timer"/>
+
+
+    </LinearLayout>
+
 
     <EditText
         android:id="@+id/password"
+        android:textColorHint="@color/registration_bg"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Password"
+        android:drawableLeft="@drawable/padlocks"
+        android:hint="PASSWORD"
+        android:maxLength="20"
         android:textColor="@android:color/black"
         android:inputType="textPassword"
+        android:layout_height="40dp"
         android:padding="10dp"
-        android:layout_margin="2dp"
+        android:layout_margin="4dp"
         android:background="@drawable/rounded_corner"/>
 
-    <Spinner
-        android:id="@+id/country"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="10dp"
-        android:layout_margin="2dp"
-        android:background="@drawable/rounded_corner"/>
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        >
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Gender"
-        android:layout_margin="2dp"
-        android:textColor="@android:color/white"
-        android:paddingTop="10dp"/>
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="40sp"
+            android:layout_margin="4dp"
+            android:layout_weight="1"
+            android:paddingTop="10dp"
+            android:text="GENDER"
+            android:textSize="18sp"
 
-    <Spinner
-        android:id="@+id/genderSpinner"
-        android:layout_width="match_parent"
-        android:padding="10dp"
-        android:layout_height="wrap_content"
-        android:layout_margin="2dp"
-        android:background="@drawable/rounded_corner"/>
+            android:background="@drawable/rounded_corner"
+            android:textColor="@color/black"
+            android:gravity="center"/>
+
+        <Spinner
+            android:id="@+id/genderSpinner"
+            android:layout_width="0dp"
+            android:layout_height="40sp"
+            android:layout_margin="4dp"
+            android:layout_weight="1"
+            android:background="@drawable/rounded_corner"
+            android:padding="10dp"/>
+    </LinearLayout>
+
+
 
     <!-- Button to upload profile picture -->
     <Button
@@ -153,7 +225,7 @@
             android:id="@+id/showTermsButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:backgroundTint="@color/registration_bg"
+            android:background=""
             android:text="@string/agree_terms"
             android:textColor="@color/white"
             android:textStyle="bold" />
@@ -163,7 +235,7 @@
         android:id="@+id/registerButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Submit"
+        android:text="Confirm"
         android:fontFamily="@font/splash_screen_font1"
         android:backgroundTint="@color/button_bg"
         android:textColor="@android:color/white"
