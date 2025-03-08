@@ -53,15 +53,23 @@ dependencies {
     implementation (libs.ccp)
     implementation(libs.play.services.location)
     implementation(libs.play.services.maps)
+
     implementation(libs.firebase.database)
     implementation(libs.firebase.auth)
+    implementation (platform(libs.firebase.bom.v3270)) // Use latest BoM version
+    implementation (libs.firebase.analytics)
+    implementation(libs.firebase.storage)
+    implementation(libs.firebase.core)
+
+
+    implementation (libs.pub.easypermissions) // To take the permissions
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
-    implementation(platform(libs.firebase.bom))
     implementation (libs.retrofit) // HTTP requests
     implementation (libs.retrofit2.converter.gson) // for
 
 
 
 }
+

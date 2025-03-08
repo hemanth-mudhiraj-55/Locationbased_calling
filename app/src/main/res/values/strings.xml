@@ -2,12 +2,10 @@
     <string name="app_name">MyWindow</string>
     <string name="title_activity_maps">MapsActivity</string>
     <string name="title_activity_maps_home">maps_home</string>
-    <string name="google_api_key">AIzaSyAQ_jeIVO2rA4oZTa3k7SMIHt-TBiGFMAY</string>
     <string name="gomaps_api">AlzaSyuN5lGWKdnjdep8QvSrYf3r-CwfRwUvudG</string>
     <string name="agree_terms"><u>Agree Terms &amp; Conditions</u></string>
     <string name="gomaps_link">https://maps.gomaps.pro/maps/api/place/queryautocomplete/json?input=ind&amp;key=AlzaSyuN5lGWKdnjdep8QvSrYf3r-CwfRwUvudG</string>
     <string name="underlined_text"><u>Forget Password...!</u></string>
     <string name="dont_have_account"><u>Don\'t hava an Account</u></string>
-    <string name="git_token">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</string>
     <string name="terms">"We collect your Name, Email, Phone Number, and Profile Picture to personalize your experience. Your data is securely stored and will not be shared with third parties without your consent. You can modify or delete your data anytime in the settings. By continuing, you agree to our Privacy Policy and Terms of Service."</string>
 </resources>
