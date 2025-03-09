@@ -57,7 +57,7 @@
         android:drawableLeft="@drawable/ic_mail"
         android:hint=" EMAIL/MOBILE"
         android:padding="10dp"
-        android:textColorHint="@color/registration_bg" />
+        android:textColor="@color/registration_bg" />
 
     <LinearLayout
         android:id="@+id/email_otp_layout"

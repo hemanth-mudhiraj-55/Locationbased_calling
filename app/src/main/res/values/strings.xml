@@ -8,4 +8,8 @@
     <string name="underlined_text"><u>Forget Password...!</u></string>
     <string name="dont_have_account"><u>Don\'t hava an Account</u></string>
     <string name="terms">"We collect your Name, Email, Phone Number, and Profile Picture to personalize your experience. Your data is securely stored and will not be shared with third parties without your consent. You can modify or delete your data anytime in the settings. By continuing, you agree to our Privacy Policy and Terms of Service."</string>
+    <string name="title_activity_home_screen">Home_Screen</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_notifications">Notifications</string>
 </resources>

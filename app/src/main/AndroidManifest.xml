@@ -21,6 +21,10 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
+            android:name=".Home_Screen"
+            android:exported="false"
+            android:label="@string/title_activity_home_screen" />
+        <activity
             android:name=".terms_and_conditions"
             android:exported="false" />
         <activity

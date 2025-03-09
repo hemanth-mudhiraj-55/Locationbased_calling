@@ -1,10 +1,8 @@
 package com.example.a1;
 
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -23,22 +21,14 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseException;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthOptions;
 import com.google.firebase.auth.PhoneAuthProvider;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.hbb20.CCPCountry;
 import com.hbb20.CountryCodePicker;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -48,364 +38,334 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class registration extends AppCompatActivity {
 
+    // UI Elements
     private EditText uniqueUserId, fullName, email, emailOtp, mobileNumber, mobileOtp, password;
     private Spinner genderSpinner;
     private CheckBox termsConditions;
     private Button registerButton, uploadProfilePictureButton, showTermsButton;
-    String gender,phone_ccp ;
+    private LinearLayout emailOtpLayout, mobileOtpLayout;
     private CountryCodePicker ccp;
-    private LinearLayout email_otp_layout , mobile_otp_layout;
-    private PhoneAuthProvider.OnVerificationStateChangedCallbacks mCallbacks;
+
+    // Firebase Authentication
     private FirebaseAuth mAuth;
     private String mVerificationId;
-    private  PhoneAuthProvider.ForceResendingToken mResendToken;
-    private ProgressDialog loadingBar;
-    FirebaseDatabase db;
-    DatabaseReference reference;
+    private PhoneAuthProvider.ForceResendingToken mResendToken;
 
-    private int email_mobile_otp_verified=0;
+    // Retrofit for API calls
     private Retrofit retrofit;
-    private retrofit_interface retrofitinterface;
-    private String BASE_URL="";
+    private retrofit_interface retrofitInterface;
+    private final String BASE_URL = "http://10.50.15.192:3000";
 
-
-
-
-
-
+    // OTP Verification Flags
+    private int emailOtpCheck = 0, mobileOtpCheck = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
-
-        // ✅ FIXED `onCreate` METHOD
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_registration);
 
+        // Initialize Firebase Auth
+        mAuth = FirebaseAuth.getInstance();
 
-        retrofit =new Retrofit.Builder()
+        // Initialize Retrofit
+        retrofit = new Retrofit.Builder()
                 .baseUrl(BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
-        retrofitinterface = retrofit.create(retrofit_interface.class);
+        retrofitInterface = retrofit.create(retrofit_interface.class);
 
-        // EditText fields
+        // Initialize UI Elements
+        initializeViews();
+
+        // Set up Gender Spinner
+        setupGenderSpinner();
+
+        // Set up Button Click Listeners
+        setupButtonListeners();
+    }
+
+    // Initialize all UI elements
+    private void initializeViews() {
         uniqueUserId = findViewById(R.id.uniqueUserId);
         fullName = findViewById(R.id.fullName);
         email = findViewById(R.id.et_email);
         emailOtp = findViewById(R.id.emailOtp);
-        email_otp_layout=findViewById(R.id.email_otp_layout);
+        emailOtpLayout = findViewById(R.id.email_otp_layout);
 
         mobileNumber = findViewById(R.id.mobileNumber);
         mobileOtp = findViewById(R.id.mobileOtp);
-        mobile_otp_layout = findViewById(R.id.mobile_Otp_layout);
+        mobileOtpLayout = findViewById(R.id.mobile_Otp_layout);
 
         password = findViewById(R.id.password);
-
-
-        ccp = (CountryCodePicker) findViewById(R.id.ccp);
-        ccp.registerCarrierNumberEditText(mobileNumber);
-
-        //----------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-
-        // Spinner ---- ✅ Verified
+        ccp = findViewById(R.id.ccp);
+        //ccp.registerCarrierNumberEditText(mobileNumber);
 
         genderSpinner = findViewById(R.id.genderSpinner);
-        genderSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                gender = adapterView.getItemAtPosition(i).toString();
-            }
+        termsConditions = findViewById(R.id.termsConditions);
+        registerButton = findViewById(R.id.registerButton);
+        uploadProfilePictureButton = findViewById(R.id.uploadProfilePictureButton);
+        showTermsButton = findViewById(R.id.showTermsButton);
+    }
 
-            @Override
-            public void onNothingSelected(AdapterView<?> adapterView) {
-
-            }
-        });
-
+    // Set up Gender Spinner
+    private void setupGenderSpinner() {
         ArrayList<String> genderList = new ArrayList<>();
+        genderList.add("Prefer not to say");
         genderList.add("Male");
         genderList.add("Female");
         genderList.add("Other");
-        genderList.add("Prefer not to say");
 
         ArrayAdapter<String> genderAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, genderList);
         genderAdapter.setDropDownViewResource(android.R.layout.select_dialog_singlechoice);
         genderSpinner.setAdapter(genderAdapter);
 
-        //----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        genderSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int position, long id) {
+                // Gender selected
+            }
 
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+                // Do nothing
+            }
+        });
+    }
 
-        // CheckBox - ✅ Verified
-        termsConditions = findViewById(R.id.termsConditions);
+    // Set up Button Click Listeners
+    private void setupButtonListeners() {
+        showTermsButton.setOnClickListener(view -> navigateToTermsAndConditions());
+        uploadProfilePictureButton.setOnClickListener(view -> uploadProfilePicture());
 
-        // Buttons - ✅ Verified
-        registerButton = findViewById(R.id.registerButton);
-        uploadProfilePictureButton = findViewById(R.id.uploadProfilePictureButton);
-        showTermsButton = findViewById(R.id.showTermsButton);
+        registerButton.setOnClickListener(view -> {
+            if (registerButton.getText().equals("Confirm")) {
+                handleRegistrationConfirmation();
+            } else {
+                handleRegistrationSubmission();
+            }
+        });
+    }
 
-        showTermsButton.setOnClickListener(term -> terms_and_condition());
-        uploadProfilePictureButton.setOnClickListener(profile -> upload_profile());
-
-
+    // Handle Registration Confirmation (Step 1)
+    private void handleRegistrationConfirmation() {
         String userId = uniqueUserId.getText().toString().trim();
         String name = fullName.getText().toString().trim();
         String emailText = email.getText().toString().trim();
-        String emailOtpText = emailOtp.getText().toString();
-        String mobileText = mobileNumber.getText().toString();
-        String mobileOtpText = mobileOtp.getText().toString();
+        String mobileText = mobileNumber.getText().toString().trim();
         String passwordText = password.getText().toString().trim();
 
+        if (!validateInputs(userId, name, emailText, mobileText, passwordText)) {
+            return;
+        }
 
+        HashMap<String, String> data = new HashMap<>();
+        data.put("email", emailText);
+        data.put("uid", userId);
+        data.put("mobile", mobileText);
+        data.put("name",name);
 
-
-
-
-
-
-        //----------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-        registerButton.setOnClickListener(new View.OnClickListener() {
+        Call<Void> call = retrofitInterface.confirm_Registration(data);
+        call.enqueue(new Callback<Void>() {
             @Override
-            public void onClick(View view) {
-
-
-
-                if (registerButton.getText().equals("Confirm")){
-
-                    if (!isValidUsername(userId)) {
-                        showToast("Enter a valid User ID (3-30 chars, letters, numbers, _ and . allowed, no leading/trailing _ or .)");
-                        return;
-                    }
-                    if (TextUtils.isEmpty(name) || name.length() > 30) {
-                        showToast("Enter a valid Full Name (max 30 characters)");
-                        return;
-                    }
-                    if (!isValidEmail(emailText)) {
-                        showToast("Enter a valid Gmail, Yahoo, Outlook, or Curaj Email Address");
-                        return;
-                    }
-                    if (!isValidOtp(emailOtpText)) {
-                        showToast("Enter a valid 6-digit Email OTP");
-                        return;
-                    }
-                    if (!isValidIndianMobile(mobileText)) {
-                        showToast("Enter a valid Mobile Number");
-                        return;
-                    }
-                    if (!isValidOtp(mobileOtpText)) {
-                        showToast("Enter a valid 6-digit Mobile OTP");
-                        return;
-                    }
-                    if (!isValidPassword(passwordText)) {
-                        showToast("Password must have at least 8 chars, 1 uppercase, 1 lowercase, 1 number, 1 special char");
-                        return;
-                    }
-                    if (!termsConditions.isChecked()) {
-                        showToast("You must agree to the Terms & Conditions");
-                        return;
-                    }
-
-
-                    HashMap<String,String> hash_mail_num= new HashMap<>();
-                    hash_mail_num.put("email",emailText);
-                    hash_mail_num.put("uid",userId);
-                    hash_mail_num.put("mobile",mobileText);
-
-                    Call<Void> call= retrofitinterface.confirm_Registration(hash_mail_num);
-                    call.enqueue(new Callback<Void>() {
-                        @Override
-                        public void onResponse(Call<Void> call, Response<Void> response) {
-                            if(response.code()==401){
-                                showToast(response.message());
-                                return;
-                            }
-                            if(response.code()==400){
-                                showToast(response.message());
-                                return;
-                            }
-                            if(response.code()==200){
-
-                                mobile_otp();
-
-                                showToast(response.message());
-
-                                uniqueUserId.setEnabled(false);
-                                fullName.setEnabled(false);
-                                email.setEnabled(false);
-                                mobileNumber.setEnabled(false);
-                                password.setEnabled(false);
-                                ccp.setEnabled(false);
-                                genderSpinner.setEnabled(false);
-                                registerButton.setText("Submit");
-                                email_otp_layout.setVisibility(View.VISIBLE);
-                                mobile_otp_layout.setVisibility(View.VISIBLE);
-
-
-                            }
-                        }
-
-                        @Override
-                        public void onFailure(Call<Void> call, Throwable t) {
-                            showToast("something went wrong, Please try again");
-                        }
-                    });
-
-
-
-//                    loadingBar.setTitle("OTP Verfication");
-//                    loadingBar.setMessage("Verifing");
-//                    loadingBar.setCanceledOnTouchOutside(false);
-//                    loadingBar.show();
-
-
-
-
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.code() == 200) {
+                    // Success: Proceed to OTP verification
+                    disableInputFields();
+                    registerButton.setText("Submit");
+                    emailOtpLayout.setVisibility(View.VISIBLE);
+                    mobileOtpLayout.setVisibility(View.VISIBLE);
+                    sendOtp(); // Send mobile OTP
+                    showToast("OTP sent to your mobile and email.");
+                } else {
+                    showToast("Error: " + response.message());
                 }
-                else{// if the button is Submit
+            }
 
-                    // mail verification is written here
-
-                    HashMap<String,String> hash_submit= new HashMap<>();
-                    hash_submit.put("email",emailText);
-                    hash_submit.put("password",passwordText);
-                    hash_submit.put("gender",gender);
-                   // hash_submit.put("profile_pic",);
-                    hash_submit.put("uid",userId);
-                    hash_submit.put("mobile",mobileText);
-                    hash_submit.put("mail_otp",emailOtpText);
-
-
-
-                    Call<Void> call= retrofitinterface.submit_Registration(hash_submit);
-                    call.enqueue(new Callback<Void>() {
-                        @Override
-                        public void onResponse(Call<Void> call, Response<Void> response) {
-                            if(response.code()==401){
-                                showToast(response.message());
-                                return;
-                            }
-
-                        }
-
-                        @Override
-                        public void onFailure(Call<Void> call, Throwable t) {
-                            showToast("something went wrong, Please try again");
-                        }
-                    });
-
-
-
-
-
-                }
-
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                showToast("Network error. Please try again.");
             }
         });
-
-
     }
 
-    private void mobile_otp(){
-        phone_ccp = ccp.getFullNumberWithPlus();
+    // Handle Registration Submission (Step 2)
+    private void handleRegistrationSubmission() {
+        String emailOtpText = emailOtp.getText().toString().trim();
+        String mobileOtpText = mobileOtp.getText().toString().trim();
 
-        PhoneAuthOptions options =
-                PhoneAuthOptions.newBuilder(mAuth)
-                        .setPhoneNumber(phone_ccp)       // Phone number to verify
-                        .setTimeout(180L, TimeUnit.SECONDS) // Timeout and unit
-                        .setActivity(registration.this)                 // (optional) Activity for callback binding
-                        // If no activity is passed, reCAPTCHA verification can not be used.
-                        .setCallbacks(mCallbacks)          // OnVerificationStateChangedCallbacks
-                        .build();
+        if (!isValidOtp(emailOtpText) || !isValidOtp(mobileOtpText)) {
+            showToast("Please enter valid 6-digit OTPs.");
+            return;
+        }
+
+        verifyOtp(mobileOtpText); // Verify mobile OTP
+        // Email OTP verification is handled on the backend
+
+        HashMap<String, String> data = new HashMap<>();
+        data.put("email", email.getText().toString().trim());
+        data.put("password", password.getText().toString().trim());
+        data.put("gender", genderSpinner.getSelectedItem().toString());
+        data.put("uid", uniqueUserId.getText().toString().trim());
+        data.put("mobile", mobileNumber.getText().toString().trim());
+        data.put("email_otp", emailOtpText);
+
+        Call<Void> call = retrofitInterface.submit_Registration(data);
+        call.enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.code() == 200) {
+                    mobileOtpCheck = 1;
+                    showToast("Registration successful!");
+                    navigateToMainActivity();
+                } else {
+                    showToast("Error: " + response.message());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                showToast("Network error. Please try again.");
+            }
+        });
+    }
+
+    // Disable input fields after confirmation
+    private void disableInputFields() {
+        uniqueUserId.setEnabled(false);
+        fullName.setEnabled(false);
+        email.setEnabled(false);
+        mobileNumber.setEnabled(false);
+        password.setEnabled(false);
+        ccp.setEnabled(false);
+        genderSpinner.setEnabled(false);
+    }
+
+    // Send OTP to mobile number
+    private void sendOtp() {
+        String phoneNumber = ccp.getFullNumberWithPlus()+"9392525718";
+
+        PhoneAuthOptions options = PhoneAuthOptions.newBuilder(mAuth)
+                .setPhoneNumber(phoneNumber)
+                .setTimeout(180L, TimeUnit.SECONDS)
+                .setActivity(this)
+                .setCallbacks(otpCallbacks)
+                .build();
         PhoneAuthProvider.verifyPhoneNumber(options);
-
-
-        mCallbacks = new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
-            @Override
-            public void onVerificationCompleted(@NonNull PhoneAuthCredential phoneAuthCredential) {
-                // Instant verification. In some cases the phone number can be instantly
-                // verified without needing to send or enter a verification code.
-                signInWithPhoneAuthCredential(phoneAuthCredential);
-            }
-
-            @Override
-            public void onVerificationFailed(@NonNull FirebaseException e) {
-                showToast("Phone Number Doesn't exsit");
-            }
-
-            @Override
-            public void onCodeSent(@NonNull String s, @NonNull PhoneAuthProvider.ForceResendingToken forceResendingToken) {
-                super.onCodeSent(s, forceResendingToken);
-                mVerificationId = s;
-                mResendToken = forceResendingToken;
-
-            }
-        };
     }
 
-    private void signInWithPhoneAuthCredential(PhoneAuthCredential credential) {
-        mAuth.signInWithCredential(credential)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            email_mobile_otp_verified++;
+    // Verify OTP
+    private void verifyOtp(String otp) {
+        PhoneAuthCredential credential = PhoneAuthProvider.getCredential(mVerificationId, otp);
+        signInWithOtp(credential);
+    }
 
-                        } else {
-                            // Sign in failed, display a message and update the UI
-                            showToast("Error in verifing mobile OTP");
-                        }
+    // Sign in with OTP
+    private void signInWithOtp(PhoneAuthCredential credential) {
+        mAuth.signInWithCredential(credential)
+                .addOnCompleteListener(this, task -> {
+                    if (task.isSuccessful()) {
+                        mobileOtpCheck = 1;
+                        showToast("Mobile OTP verified successfully!");
+                    } else {
+                        showToast("Error verifying OTP. Please try again.");
                     }
                 });
     }
 
+    // Validate all inputs
+    private boolean validateInputs(String userId, String name, String emailText, String mobileText, String passwordText) {
+        if (!isValidUsername(userId)) {
+            showToast("Invalid User ID. Use 3-30 chars, letters, numbers, _ and . allowed.");
+            return false;
+        }
+        if (TextUtils.isEmpty(name) || name.length() > 30) {
+            showToast("Invalid Full Name. Max 30 characters allowed.");
+            return false;
+        }
+        if (!isValidEmail(emailText)) {
+            showToast("Invalid Email. Use Gmail, Yahoo, Outlook, or Curaj email.");
+            return false;
+        }
+        if (!isValidIndianMobile(mobileText)) {
+            showToast("Invalid Mobile Number. Use a valid Indian mobile number.");
+            return false;
+        }
+        if (!isValidPassword(passwordText)) {
+            showToast("Invalid Password. Use 8+ chars, 1 uppercase, 1 lowercase, 1 number, 1 special char.");
+            return false;
+        }
+        if (!termsConditions.isChecked()) {
+            showToast("You must agree to the Terms & Conditions.");
+            return false;
+        }
+        return true;
+    }
 
-    private void senduserto_MainActivity(){
-        Intent iHome = new Intent(registration.this,maps_home.class);
-        startActivity(iHome);
+    // Navigate to Terms & Conditions
+    private void navigateToTermsAndConditions() {
+        Intent intent = new Intent(this, terms_and_conditions.class);
+        startActivity(intent);
+    }
+
+    // Navigate to Main Activity
+    private void navigateToMainActivity() {
+        Intent intent = new Intent(this, maps_home.class);
+        startActivity(intent);
         finish();
     }
 
-    // ✅ FIX: Users can now return from Terms & Conditions page
-    private void terms_and_condition() {
-        Intent iHome = new Intent(registration.this, terms_and_conditions.class);
-        startActivity(iHome);
+    // Upload Profile Picture (Placeholder)
+    private void uploadProfilePicture() {
+        showToast("Profile picture upload functionality not implemented yet.");
     }
 
-    private void upload_profile() {
-        // Handle profile upload logic
-    }
-
-    // ✅ Improved Username Validation (No leading/trailing _ or ., at least 3 chars)
+    // Validation Methods
     private boolean isValidUsername(String username) {
-        String usernameRegex = "^(?!.*[_.]{2})(?![_\\.])[a-zA-Z0-9_.]{3,30}(?<![_.])$";
-        return username.matches(usernameRegex);
+        String regex = "^(?!.*[_.]{2})(?![_.])[a-zA-Z0-9_.]{3,30}(?<![_.])$";
+        return username.matches(regex);
     }
 
-    // ✅ Strict Email Validation (Only allows Gmail, Yahoo, Outlook, and Curaj emails)
     private boolean isValidEmail(String email) {
-        String emailRegex = "^[a-zA-Z0-9._%+-]+@(gmail\\.com|yahoo\\.com|outlook\\.com|curaj\\.ac\\.in)$";
-        return email.matches(emailRegex);
+        String regex = "^[a-zA-Z0-9._%+-]+@(gmail\\.com|yahoo\\.com|outlook\\.com|curaj\\.ac\\.in)$";
+        return email.matches(regex);
     }
 
-    // ✅ 6-Digit OTP Validation
-    private boolean isValidOtp(String otp) {
-        return otp.matches("^\\d{6}$");
-    }
-
-    // ✅ 10-Digit Indian Mobile Number Validation (Starts with 9, 8, 7, or 6)
     private boolean isValidIndianMobile(String mobile) {
         return mobile.matches("^[6789]\\d{9}$");
     }
 
-    // ✅ Strong Password Validation (8+ chars, 1 uppercase, 1 lowercase, 1 number, 1 special char)
     private boolean isValidPassword(String password) {
-        String passwordRegex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@#$%^&+=]).{8,}$";
-        return password.matches(passwordRegex);
+        String regex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@#$%^&+=]).{8,}$";
+        return password.matches(regex);
     }
 
+    private boolean isValidOtp(String otp) {
+        return otp.matches("^\\d{6}$");
+    }
+
+    // Show Toast Message
     private void showToast(String message) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
+
+    // OTP Callbacks
+    private final PhoneAuthProvider.OnVerificationStateChangedCallbacks otpCallbacks =
+            new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
+                @Override
+                public void onVerificationCompleted(@NonNull PhoneAuthCredential credential) {
+                    signInWithOtp(credential);
+                }
+
+                @Override
+                public void onVerificationFailed(@NonNull FirebaseException e) {
+                    showToast("OTP verification failed: " + e.getMessage());
+                }
+
+                @Override
+                public void onCodeSent(@NonNull String verificationId, @NonNull PhoneAuthProvider.ForceResendingToken token) {
+                    mVerificationId = verificationId;
+                    mResendToken = token;
+                    showToast("OTP sent successfully.");
+                }
+            };
 }

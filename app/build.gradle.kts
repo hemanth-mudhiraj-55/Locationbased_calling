@@ -36,9 +36,6 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
-    buildFeatures {
-        viewBinding = true
-    }
 }
 
 dependencies {
@@ -51,8 +48,10 @@ dependencies {
     implementation(libs.lottie)
     implementation (libs.material)
     implementation (libs.ccp)
+
     implementation(libs.play.services.location)
     implementation(libs.play.services.maps)
+    implementation (libs.play.services.auth)
 
     implementation(libs.firebase.database)
     implementation(libs.firebase.auth)
@@ -62,7 +61,11 @@ dependencies {
     implementation(libs.firebase.core)
 
 
-    implementation (libs.pub.easypermissions) // To take the permissions
+    implementation (libs.pub.easypermissions)
+    implementation(libs.lifecycle.livedata.ktx)
+    implementation(libs.lifecycle.viewmodel.ktx)
+    implementation(libs.navigation.fragment)
+    implementation(libs.navigation.ui) // To take the permissions
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
