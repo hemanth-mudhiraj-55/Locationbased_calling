@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.View;
 import android.view.WindowInsetsController;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -19,22 +20,22 @@ public class MainActivity extends AppCompatActivity {
             getSupportActionBar().hide();
         }
 
-        // Use the WindowInsetsController API to enable edge-to-edge experience for Android 11 (API level 30) and above
+        // Enable edge-to-edge experience
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) { // Android 11 (API 30) and higher
             WindowInsetsController insetsController = getWindow().getInsetsController();
             if (insetsController != null) {
-                // Hide the status bar and navigation bar to allow content to extend to the edges
+                // Hide the status bar and navigation bar
                 insetsController.hide(android.view.WindowInsets.Type.statusBars() | android.view.WindowInsets.Type.navigationBars());
-                // Optionally, allow swiping to show system bars
-                insetsController.setSystemBarsBehavior(WindowInsetsController.BEHAVIOR_DEFAULT);
+                // Allow swiping to show system bars
+                insetsController.setSystemBarsBehavior(WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
             }
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) { // For Android 5.0 to Android 10
-            // For older versions, use the system UI flags for immersive mode
-            getWindow().getDecorView().setSystemUiVisibility(
-                    android.view.View.SYSTEM_UI_FLAG_FULLSCREEN |
-                            android.view.View.SYSTEM_UI_FLAG_HIDE_NAVIGATION |
-                            android.view.View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-            );
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) { // Android 5.0 (API 21) to Android 10 (API 29)
+            // Use deprecated system UI flags for immersive mode
+            View decorView = getWindow().getDecorView();
+            int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN
+                    | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                    | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
+            decorView.setSystemUiVisibility(uiOptions);
         }
 
         // Set the content view

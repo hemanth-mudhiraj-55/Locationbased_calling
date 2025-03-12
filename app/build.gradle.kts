@@ -4,6 +4,8 @@ plugins {
     alias(libs.plugins.google.gms.google.services)
 }
 
+
+
 android {
 
     namespace = "com.example.a1"
@@ -46,16 +48,15 @@ dependencies {
     implementation(libs.activity)
     implementation(libs.constraintlayout)
     implementation(libs.lottie)
-    implementation (libs.material)
     implementation (libs.ccp)
 
-    implementation(libs.play.services.location)
-    implementation(libs.play.services.maps)
-    implementation (libs.play.services.auth)
+    implementation(libs.play.services.location.v2101) // Use the latest version
+    implementation(libs.play.services.maps.v1910) // Use the latest version
+    implementation(libs.play.services.auth) // Use the latest version
 
     implementation(libs.firebase.database)
     implementation(libs.firebase.auth)
-    implementation (platform(libs.firebase.bom.v3270)) // Use latest BoM version
+    implementation(platform(libs.firebase.bom)) // Use the latest BoM version
     implementation (libs.firebase.analytics)
     implementation(libs.firebase.storage)
     implementation(libs.firebase.core)
@@ -72,7 +73,13 @@ dependencies {
     implementation (libs.retrofit) // HTTP requests
     implementation (libs.retrofit2.converter.gson) // for
 
-
+    //noinspection UseTomlInstead
+    implementation ("androidx.navigation:navigation-fragment-ktx:2.8.8") // Use the latest version
+    implementation (libs.navigation.ui.ktx) // Use the latest version
+    
+    implementation (libs.drawerlayout)
 
 }
+
+
 

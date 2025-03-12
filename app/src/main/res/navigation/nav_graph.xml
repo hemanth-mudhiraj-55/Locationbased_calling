@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/exploreFragment"> <!-- Set the default destination -->
+
+    <activity
+        android:id="@+id/exploreFragment"
+        android:name="com.example.a1.ExploreFragment"
+        android:label="Explore" />
+
+    <activity
+        android:id="@+id/contributeActivity"
+        android:name="com.example.a1.contribute"
+        android:label="Contribute" />
+
+    <activity
+        android:id="@+id/notificationActivity"
+        android:name="com.example.a1.notification"
+        android:label="Notifications" />
+
+    <activity
+        android:id="@+id/profileActivity"
+        android:name="com.example.a1.profile"
+        android:label="Profile" />
+
+</navigation>

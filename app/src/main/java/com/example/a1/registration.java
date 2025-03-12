@@ -1,8 +1,11 @@
 package com.example.a1;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -11,9 +14,13 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -26,10 +33,13 @@ import com.google.firebase.auth.PhoneAuthOptions;
 import com.google.firebase.auth.PhoneAuthProvider;
 import com.hbb20.CountryCodePicker;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
+import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -38,34 +48,33 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class registration extends AppCompatActivity {
 
+    private static final int IMAGE_REQUEST_CODE = 1;
+    private static final int CAMERA_REQUEST_CODE = 2;
+    private Uri imageUri;
+
     // UI Elements
     private EditText uniqueUserId, fullName, email, emailOtp, mobileNumber, mobileOtp, password;
+    private TextView eMin,eSec,mMin,mSec;
     private Spinner genderSpinner;
     private CheckBox termsConditions;
-    private Button registerButton, uploadProfilePictureButton, showTermsButton;
-    private LinearLayout emailOtpLayout, mobileOtpLayout;
+    private Button registerButton, uploadProfilePictureButton, showTermsButton,skip_registration,mOTP_resend,eOTP_resend;
+    private LinearLayout emailOtpLayout, mobileOtpLayout,mOTPtimer,eOTPtimer;
     private CountryCodePicker ccp;
 
-    // Firebase Authentication
-    private FirebaseAuth mAuth;
-    private String mVerificationId;
-    private PhoneAuthProvider.ForceResendingToken mResendToken;
+    timer timer =new timer();
+
 
     // Retrofit for API calls
     private Retrofit retrofit;
     private retrofit_interface retrofitInterface;
     private final String BASE_URL = "http://10.50.15.192:3000";
 
-    // OTP Verification Flags
-    private int emailOtpCheck = 0, mobileOtpCheck = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_registration);
 
-        // Initialize Firebase Auth
-        mAuth = FirebaseAuth.getInstance();
 
         // Initialize Retrofit
         retrofit = new Retrofit.Builder()
@@ -88,19 +97,32 @@ public class registration extends AppCompatActivity {
     private void initializeViews() {
         uniqueUserId = findViewById(R.id.uniqueUserId);
         fullName = findViewById(R.id.fullName);
+
+
         email = findViewById(R.id.et_email);
         emailOtp = findViewById(R.id.emailOtp);
+        eOTPtimer=findViewById(R.id.eOTPtimer);
+        eOTP_resend=findViewById(R.id.resend1);
+        eMin =findViewById(R.id.eMin);
+        eSec=findViewById(R.id.eSec);
         emailOtpLayout = findViewById(R.id.email_otp_layout);
 
         mobileNumber = findViewById(R.id.mobileNumber);
         mobileOtp = findViewById(R.id.mobileOtp);
+        mOTPtimer=findViewById(R.id.mOTPtimer);
+        mMin=findViewById(R.id.mMin);
+        mSec =findViewById(R.id.mSec);
+        mOTP_resend=findViewById(R.id.resend2);
         mobileOtpLayout = findViewById(R.id.mobile_Otp_layout);
 
         password = findViewById(R.id.password);
+
         ccp = findViewById(R.id.ccp);
-        //ccp.registerCarrierNumberEditText(mobileNumber);
+        ccp.registerCarrierNumberEditText(mobileNumber);
 
         genderSpinner = findViewById(R.id.genderSpinner);
+
+        skip_registration= findViewById(R.id.skip);
         termsConditions = findViewById(R.id.termsConditions);
         registerButton = findViewById(R.id.registerButton);
         uploadProfilePictureButton = findViewById(R.id.uploadProfilePictureButton);
@@ -135,7 +157,8 @@ public class registration extends AppCompatActivity {
     // Set up Button Click Listeners
     private void setupButtonListeners() {
         showTermsButton.setOnClickListener(view -> navigateToTermsAndConditions());
-        uploadProfilePictureButton.setOnClickListener(view -> uploadProfilePicture());
+        uploadProfilePictureButton.setOnClickListener(view -> showImagePickerOptions());
+        skip_registration.setOnClickListener(view -> navigateToMainActivity());
 
         registerButton.setOnClickListener(view -> {
             if (registerButton.getText().equals("Confirm")) {
@@ -157,24 +180,32 @@ public class registration extends AppCompatActivity {
         if (!validateInputs(userId, name, emailText, mobileText, passwordText)) {
             return;
         }
-
+        String fullPhoneNumber = ccp.getFullNumberWithPlus();
         HashMap<String, String> data = new HashMap<>();
         data.put("email", emailText);
         data.put("uid", userId);
-        data.put("mobile", mobileText);
+        data.put("mobile" , fullPhoneNumber);
         data.put("name",name);
 
-        Call<Void> call = retrofitInterface.confirm_Registration(data);
-        call.enqueue(new Callback<Void>() {
+        Call<fetch_confirm_registration> call = retrofitInterface.confirm_Registration(data);
+        call.enqueue(new Callback<fetch_confirm_registration>() {
             @Override
-            public void onResponse(Call<Void> call, Response<Void> response) {
+            public void onResponse(Call<fetch_confirm_registration> call, Response<fetch_confirm_registration> response) {
                 if (response.code() == 200) {
-                    // Success: Proceed to OTP verification
+                    // Email OTP has sent at backend
+                    // Mobile OTP has sent at backend
+
+                    // Calling timer class
+                    timer.setMin(eMin);
+                    timer.setSec(eSec);
+                    timer.setMin(mMin);
+                    timer.setSec(mSec);
+
+
                     disableInputFields();
                     registerButton.setText("Submit");
                     emailOtpLayout.setVisibility(View.VISIBLE);
                     mobileOtpLayout.setVisibility(View.VISIBLE);
-                    sendOtp(); // Send mobile OTP
                     showToast("OTP sent to your mobile and email.");
                 } else {
                     showToast("Error: " + response.message());
@@ -182,7 +213,7 @@ public class registration extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(Call<Void> call, Throwable t) {
+            public void onFailure(Call<fetch_confirm_registration> call, Throwable t) {
                 showToast("Network error. Please try again.");
             }
         });
@@ -198,32 +229,35 @@ public class registration extends AppCompatActivity {
             return;
         }
 
-        verifyOtp(mobileOtpText); // Verify mobile OTP
-        // Email OTP verification is handled on the backend
+        //get the profile image from a user and put it in hashMap
 
+        String fullPhoneNumber = ccp.getFullNumberWithPlus();
         HashMap<String, String> data = new HashMap<>();
         data.put("email", email.getText().toString().trim());
         data.put("password", password.getText().toString().trim());
         data.put("gender", genderSpinner.getSelectedItem().toString());
         data.put("uid", uniqueUserId.getText().toString().trim());
-        data.put("mobile", mobileNumber.getText().toString().trim());
-        data.put("email_otp", emailOtpText);
+        data.put("mobile", fullPhoneNumber);
+        data.put("email_otp",emailOtpText);
+        data.put("mobile_otp",mobileOtpText);
 
-        Call<Void> call = retrofitInterface.submit_Registration(data);
-        call.enqueue(new Callback<Void>() {
+        showToast(email.getText().toString().trim());
+
+        Call<fetch_submit_registration> call = retrofitInterface.submit_Registration(data);
+        call.enqueue(new Callback<fetch_submit_registration>() {
             @Override
-            public void onResponse(Call<Void> call, Response<Void> response) {
+            public void onResponse(Call<fetch_submit_registration> call, Response<fetch_submit_registration> response) {
                 if (response.code() == 200) {
-                    mobileOtpCheck = 1;
                     showToast("Registration successful!");
                     navigateToMainActivity();
                 } else {
+                    showToast(Integer.toString(response.code()));
                     showToast("Error: " + response.message());
                 }
             }
 
             @Override
-            public void onFailure(Call<Void> call, Throwable t) {
+            public void onFailure(Call<fetch_submit_registration> call, Throwable t) {
                 showToast("Network error. Please try again.");
             }
         });
@@ -238,38 +272,6 @@ public class registration extends AppCompatActivity {
         password.setEnabled(false);
         ccp.setEnabled(false);
         genderSpinner.setEnabled(false);
-    }
-
-    // Send OTP to mobile number
-    private void sendOtp() {
-        String phoneNumber = ccp.getFullNumberWithPlus()+"9392525718";
-
-        PhoneAuthOptions options = PhoneAuthOptions.newBuilder(mAuth)
-                .setPhoneNumber(phoneNumber)
-                .setTimeout(180L, TimeUnit.SECONDS)
-                .setActivity(this)
-                .setCallbacks(otpCallbacks)
-                .build();
-        PhoneAuthProvider.verifyPhoneNumber(options);
-    }
-
-    // Verify OTP
-    private void verifyOtp(String otp) {
-        PhoneAuthCredential credential = PhoneAuthProvider.getCredential(mVerificationId, otp);
-        signInWithOtp(credential);
-    }
-
-    // Sign in with OTP
-    private void signInWithOtp(PhoneAuthCredential credential) {
-        mAuth.signInWithCredential(credential)
-                .addOnCompleteListener(this, task -> {
-                    if (task.isSuccessful()) {
-                        mobileOtpCheck = 1;
-                        showToast("Mobile OTP verified successfully!");
-                    } else {
-                        showToast("Error verifying OTP. Please try again.");
-                    }
-                });
     }
 
     // Validate all inputs
@@ -314,10 +316,6 @@ public class registration extends AppCompatActivity {
         finish();
     }
 
-    // Upload Profile Picture (Placeholder)
-    private void uploadProfilePicture() {
-        showToast("Profile picture upload functionality not implemented yet.");
-    }
 
     // Validation Methods
     private boolean isValidUsername(String username) {
@@ -348,24 +346,114 @@ public class registration extends AppCompatActivity {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
 
-    // OTP Callbacks
-    private final PhoneAuthProvider.OnVerificationStateChangedCallbacks otpCallbacks =
-            new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
-                @Override
-                public void onVerificationCompleted(@NonNull PhoneAuthCredential credential) {
-                    signInWithOtp(credential);
-                }
 
-                @Override
-                public void onVerificationFailed(@NonNull FirebaseException e) {
-                    showToast("OTP verification failed: " + e.getMessage());
-                }
+    // Method to open the gallery for image selection
 
-                @Override
-                public void onCodeSent(@NonNull String verificationId, @NonNull PhoneAuthProvider.ForceResendingToken token) {
-                    mVerificationId = verificationId;
-                    mResendToken = token;
-                    showToast("OTP sent successfully.");
+    private void showImagePickerOptions() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Choose Image Source");
+        builder.setItems(new String[]{"Camera", "Gallery"}, (dialog, which) -> {
+            switch (which) {
+                case 0:
+                    openCamera();
+                    break;
+                case 1:
+                    openGallery();
+                    break;
+            }
+        });
+        builder.show();
+    }
+
+    // Method to open the camera
+    private void openCamera() {
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        // Create a file to save the captured image
+        File photoFile = createImageFile();
+        if (photoFile != null) {
+            imageUri = Uri.fromFile(photoFile);
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+            cameraLauncher.launch(intent);
+        }
+    }
+
+    // Method to create a temporary file for the camera image
+    private File createImageFile() {
+        try {
+            File storageDir = getExternalFilesDir("images");
+            return File.createTempFile("IMG_", ".jpg", storageDir);
+        } catch (IOException e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Failed to create image file", Toast.LENGTH_SHORT).show();
+            return null;
+        }
+    }
+
+    // Method to open the gallery
+    private void openGallery() {
+        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        galleryLauncher.launch(intent);
+    }
+
+    // ActivityResultLauncher for camera
+    private final ActivityResultLauncher<Intent> cameraLauncher =
+            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+                if (result.getResultCode() == RESULT_OK) {
+                    uploadImage(imageUri); // Upload the captured image
                 }
-            };
+            });
+
+    // ActivityResultLauncher for gallery
+    private final ActivityResultLauncher<Intent> galleryLauncher =
+            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+                if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                    imageUri = result.getData().getData();
+                    uploadImage(imageUri); // Upload the selected image
+                }
+            });
+
+    // Method to upload the image
+    private void uploadImage(Uri imageUri) {
+        File imageFile = new File(imageUri.getPath());
+
+        // Check file size (5MB = 5 * 1024 * 1024 bytes)
+        long fileSizeInBytes = imageFile.length();
+        long fileSizeInMB = fileSizeInBytes / (1024 * 1024);
+
+        if (fileSizeInMB > 5) {
+            Toast.makeText(this, "Image size must be less than 5MB", Toast.LENGTH_SHORT).show();
+            return; // Exit if the file is too large
+        }
+
+//        // Create a MultipartBody.Part from the file
+//        RequestBody requestFile = RequestBody.create(imageFile, MediaType.parse("image/*"));
+//        MultipartBody.Part imagePart = MultipartBody.Part.createFormData("image", imageFile.getName(), requestFile);
+//
+//        // Get the Retrofit API service instance
+//        ApiService apiService = RetrofitClient.getApiService();
+//
+//        // Perform the upload in a background thread
+//        new Thread(() -> {
+//            try {
+//                // Execute the upload request
+//                retrofit2.Response<ResponseBody> response = apiService.uploadImage(imagePart).execute();
+//
+//                // Handle the response on the UI thread
+//                runOnUiThread(() -> {
+//                    if (response.isSuccessful()) {
+//                        Toast.makeText(MainActivity.this, "Upload Successful!", Toast.LENGTH_SHORT).show();
+//                    } else {
+//                        Toast.makeText(MainActivity.this, "Upload Failed!", Toast.LENGTH_SHORT).show();
+//                    }
+//                });
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//                runOnUiThread(() -> Toast.makeText(MainActivity.this, "Upload Error!", Toast.LENGTH_SHORT).show());
+//            }
+//        }).start();
+    }
+
+
+
+
 }

@@ -1,12 +1,16 @@
 [versions]
 agp = "8.7.2"
+androidxAppcompatVersion = "1.6.1"
 appcompatV7 = "28.0.0"
 ccp = "2.7.2"
 converterGson = "2.9.0"
+drawerlayout = "1.2.0"
 firebaseBom = "33.10.0"
 firebaseBomVersion = "32.7.0"
 firebaseCore = "21.1.1"
 firebaseUiDatabase = "3.2.2"
+googleMaterial = "1.11.0"
+googleServices = "4.4.2"
 hbb20Ccp = "2.5.0"
 junit = "4.13.2"
 junitVersion = "1.2.1"
@@ -18,9 +22,13 @@ activity = "1.10.0"
 constraintlayout = "2.2.0"
 googleAndroidLibrariesMapsplatformSecretsGradlePlugin = "2.0.1"
 materialVersion = "1..0"
+navigationUiKtx = "2.8.8"
+navigationUiVersion = "2.7.7"
 playServicesAuth = "21.3.0"
 playServicesLocation = "21.3.0"
+playServicesLocationVersion = "21.0.1"
 playServicesMaps = "19.0.0"
+playServicesMapsVersion = "19.1.0"
 pubEasypermissions = "3.0.0"
 retrofit = "2.9.0"
 secretsGradlePlugin = "2.0.1"
@@ -36,13 +44,16 @@ navigationFragment = "2.8.5"
 navigationUi = "2.8.5"
 
 [libraries]
+appcompat-v161 = { module = "androidx.appcompat:appcompat", version.ref = "androidxAppcompatVersion" }
 appcompat-v7 = { module = "com.android.support:appcompat-v7", version.ref = "appcompatV7" }
 ccp = { module = "com.hbb20:ccp", version.ref = "ccp" }
+drawerlayout = { module = "androidx.drawerlayout:drawerlayout", version.ref = "drawerlayout" }
 firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
 firebase-bom-v3270 = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBomVersion" }
 firebase-core = { module = "com.google.firebase:firebase-core", version.ref = "firebaseCore" }
 firebase-ui-database = { module = "com.firebaseui:firebase-ui-database", version.ref = "firebaseUiDatabase" }
+google-services = { module = "com.google.gms:google-services", version.ref = "googleServices" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
@@ -51,9 +62,14 @@ lottie = { module = "com.airbnb.android:lottie", version.ref = "lottie" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
+material-v1110 = { module = "com.google.android.material:material", version.ref = "googleMaterial" }
+navigation-ui-ktx = { module = "androidx.navigation:navigation-ui-ktx", version.ref = "navigationUiKtx" }
+navigation-ui-v277 = { module = "androidx.navigation:navigation-ui", version.ref = "navigationUiVersion" }
 play-services-auth = { module = "com.google.android.gms:play-services-auth", version.ref = "playServicesAuth" }
 play-services-location = { module = "com.google.android.gms:play-services-location", version.ref = "playServicesLocation" }
+play-services-location-v2101 = { module = "com.google.android.gms:play-services-location", version.ref = "playServicesLocationVersion" }
 play-services-maps = { group = "com.google.android.gms", name = "play-services-maps", version.ref = "playServicesMaps" }
+play-services-maps-v1910 = { module = "com.google.android.gms:play-services-maps", version.ref = "playServicesMapsVersion" }
 pub-easypermissions = { module = "pub.devrel:easypermissions", version.ref = "pubEasypermissions" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 retrofit2-converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "converterGson" }
