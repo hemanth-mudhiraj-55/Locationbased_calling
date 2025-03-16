@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.google.android.libraries.mapsplatform.secrets.gradle.plugin)
     alias(libs.plugins.google.gms.google.services)
+    id ("androidx.navigation.safeargs")
 }
 
 
@@ -10,6 +11,10 @@ android {
 
     namespace = "com.example.a1"
     compileSdk = 35
+
+    buildFeatures{
+        viewBinding = true
+    }
 
     defaultConfig {
         applicationId = "com.example.a1"
@@ -31,9 +36,6 @@ android {
             )
         }
     }
-    buildFeatures{
-        viewBinding = true
-    }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
@@ -54,13 +56,6 @@ dependencies {
     implementation(libs.play.services.maps.v1910) // Use the latest version
     implementation(libs.play.services.auth) // Use the latest version
 
-    implementation(libs.firebase.database)
-    implementation(libs.firebase.auth)
-    implementation(platform(libs.firebase.bom)) // Use the latest BoM version
-    implementation (libs.firebase.analytics)
-    implementation(libs.firebase.storage)
-    implementation(libs.firebase.core)
-
 
     implementation (libs.pub.easypermissions)
     implementation(libs.lifecycle.livedata.ktx)
@@ -74,7 +69,7 @@ dependencies {
     implementation (libs.retrofit2.converter.gson) // for
 
     //noinspection UseTomlInstead
-    implementation ("androidx.navigation:navigation-fragment-ktx:2.8.8") // Use the latest version
+    implementation ("androidx.navigation:navigation-fragment-ktx:2.8.9") // Use the latest version
     implementation (libs.navigation.ui.ktx) // Use the latest version
     
     implementation (libs.drawerlayout)

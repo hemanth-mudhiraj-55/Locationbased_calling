@@ -1,28 +1,30 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- Toolbar at the Top -->
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
         android:background="@drawable/login_bt_gradient"
         android:elevation="4dp"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
         app:title="Home" />
-    <!-- NavHostFragment for Navigation Component -->
+
+    <!-- BottomNavigationView at the Bottom -->
     <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/nav_host_fragment"
+        android:id="@+id/fragmentContainerView"
+        android:name="com.example.a1.ExploreFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@id/home_nav_view"
-        app:defaultNavHost="true"
-        app:navGraph="@navigation/nav_graph"
-        android:name="com.example.a1.ExploreFragment" />
+        android:layout_below="@id/toolbar"
+        tools:layout="@layout/activity_main" />
 
-    <!-- Bottom Navigation View -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/home_nav_view"
         android:layout_width="match_parent"

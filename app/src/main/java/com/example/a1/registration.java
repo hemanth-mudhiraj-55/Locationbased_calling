@@ -25,12 +25,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.FirebaseException;
-import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.PhoneAuthCredential;
-import com.google.firebase.auth.PhoneAuthOptions;
-import com.google.firebase.auth.PhoneAuthProvider;
 import com.hbb20.CountryCodePicker;
 
 import java.io.File;
@@ -67,7 +61,7 @@ public class registration extends AppCompatActivity {
     // Retrofit for API calls
     private Retrofit retrofit;
     private retrofit_interface retrofitInterface;
-    private final String BASE_URL = "http://10.50.15.192:3000";
+    private final String BASE_URL =getString(R.string.local_host_server);
 
 
     @Override
@@ -305,13 +299,14 @@ public class registration extends AppCompatActivity {
 
     // Navigate to Terms & Conditions
     private void navigateToTermsAndConditions() {
-        Intent intent = new Intent(this, terms_and_conditions.class);
-        startActivity(intent);
+//        Intent intent = new Intent(this, terms_and_conditions.class);
+//        startActivity(intent);
+        setContentView(R.layout.activity_terms_and_conditions);
     }
 
     // Navigate to Main Activity
     private void navigateToMainActivity() {
-        Intent intent = new Intent(this, maps_home.class);
+        Intent intent = new Intent(registration.this, Home_Screen.class);
         startActivity(intent);
         finish();
     }

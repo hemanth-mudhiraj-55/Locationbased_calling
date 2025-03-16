@@ -28,18 +28,10 @@
         android:theme="@style/Theme._1"
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
-        <activity
-            android:name=".profile"
-            android:exported="false" />
-        <activity
-            android:name=".notification"
-            android:exported="false" />
-        <activity
-            android:name=".contribute"
-            android:exported="false" />
+
         <activity
             android:name=".Home_Screen"
-            android:exported="false"
+            android:exported="true"
             android:label="@string/title_activity_home_screen" />
         <activity
             android:name=".terms_and_conditions"

@@ -10,7 +10,10 @@
     <string name="terms">"We collect your Name, Email, Phone Number, and Profile Picture to personalize your experience. Your data is securely stored and will not be shared with third parties without your consent. You can modify or delete your data anytime in the settings. By continuing, you agree to our Privacy Policy and Terms of Service."</string>
     <string name="title_activity_home_screen">Home_Screen</string>
     <string name="title_home">Explore</string>
+    <string name="local_host_server">http://10.50.15.192:3000</string>
     <string name="title_dashboard">Contribute</string>
     <string name="title_notifications">Notifications</string>
     <string name="profile">Profile</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
