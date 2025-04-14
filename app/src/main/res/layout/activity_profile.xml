@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
@@ -11,85 +12,89 @@
         android:orientation="vertical"
         android:gravity="center_horizontal">
 
+        <!-- Progress Bar -->
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="gone" />
+
         <!-- Profile Picture -->
         <ImageView
             android:id="@+id/iv_profile_picture"
             android:layout_width="100dp"
             android:layout_height="100dp"
+            android:contentDescription="profile_picture_desc"
             android:src="@drawable/profile"
             android:scaleType="centerCrop"
             android:layout_marginBottom="12dp" />
 
-        <!-- User Name -->
+        <!-- User Information -->
         <TextView
             android:id="@+id/tv_user_name"
+            style="@style/TextAppearance.AppCompat.Title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="User Name"
-            android:textSize="22sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="4dp" />
+            android:layout_marginBottom="4dp"
+            tools:text="John Doe" />
 
-        <!-- Email -->
         <TextView
             android:id="@+id/tv_user_email"
+            style="@style/TextAppearance.AppCompat.Body1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="user@example.com"
-            android:textSize="16sp"
+            android:layout_marginBottom="8dp"
             android:textColor="@android:color/darker_gray"
-            android:layout_marginBottom="8dp" />
+            tools:text="john.doe@example.com" />
 
-        <!-- Phone Number -->
         <TextView
             android:id="@+id/tv_user_phone"
+            style="@style/TextAppearance.AppCompat.Body1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="+91 9876543210"
-            android:textSize="16sp"
+            android:layout_marginBottom="8dp"
             android:textColor="@android:color/darker_gray"
-            android:layout_marginBottom="8dp" />
+            tools:text="+1 234567890" />
 
-        <!-- Location -->
         <TextView
             android:id="@+id/tv_user_location"
+            style="@style/TextAppearance.AppCompat.Body1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Current Location: New Delhi, India"
-            android:textSize="16sp"
+            android:layout_marginBottom="12dp"
             android:textColor="@android:color/darker_gray"
-            android:layout_marginBottom="12dp" />
+            tools:text="Current Location: New York, USA" />
 
         <!-- Balance Info -->
         <TextView
             android:id="@+id/tv_balance"
+            style="@style/TextAppearance.AppCompat.Subhead"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Balance: ₹500.00"
-            android:textSize="18sp"
-            android:textStyle="bold"
+            android:layout_marginBottom="8dp"
             android:textColor="@android:color/holo_green_dark"
-            android:layout_marginBottom="8dp" />
+            android:textStyle="bold"
+            tools:text="Balance: $100.00" />
 
         <!-- Recharge Button -->
         <Button
             android:id="@+id/btn_recharge"
+            style="@style/Widget.AppCompat.Button.Colored"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Recharge Account"
-            android:backgroundTint="@android:color/holo_blue_dark"
-            android:textColor="@android:color/white"
+            android:layout_marginBottom="16dp"
             android:padding="12dp"
-            android:layout_marginBottom="16dp" />
+            android:text="recharge_account" />
 
         <!-- Call History Section -->
         <TextView
+            style="@style/TextAppearance.AppCompat.Subhead"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Call History"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="8dp" />
+            android:layout_marginBottom="8dp"
+            android:text="call_history"
+            android:textStyle="bold" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_call_history"
@@ -100,23 +105,25 @@
         <!-- Settings & Logout -->
         <Button
             android:id="@+id/btn_settings"
+            style="@style/Widget.AppCompat.Button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Settings"
-            android:backgroundTint="@android:color/darker_gray"
-            android:textColor="@android:color/white"
+            android:layout_marginTop="16dp"
+            android:backgroundTint="#333030"
             android:padding="12dp"
-            android:layout_marginTop="16dp" />
+            android:text="settings"
+            android:textColor="@android:color/white" />
 
         <Button
             android:id="@+id/btn_logout"
+            style="@style/Widget.AppCompat.Button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Logout"
-            android:backgroundTint="@android:color/holo_red_dark"
-            android:textColor="@android:color/white"
+            android:layout_marginTop="8dp"
+            android:backgroundTint="#D91616"
             android:padding="12dp"
-            android:layout_marginTop="8dp" />
+            android:text="logout"
+            android:textColor="@android:color/white" />
 
     </LinearLayout>
 </ScrollView>

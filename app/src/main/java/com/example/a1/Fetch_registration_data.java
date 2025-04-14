@@ -1,9 +1,9 @@
 package com.example.a1;
 
-public class fetch_registration_data {
+public class Fetch_registration_data {
     String uniqueUserId, fullName, email, emailOtp, mobileNumber, mobileOtp, password,genderSpinner;
 
-    public fetch_registration_data(String uniqueUserId, String fullName, String email, String emailOtp, String mobileNumber, String mobileOtp, String password, String genderSpinner) {
+    public Fetch_registration_data(String uniqueUserId, String fullName, String email, String emailOtp, String mobileNumber, String mobileOtp, String password, String genderSpinner) {
         this.uniqueUserId = uniqueUserId;
         this.fullName = fullName;
         this.email = email;

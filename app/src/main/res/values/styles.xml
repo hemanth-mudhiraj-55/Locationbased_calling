@@ -4,5 +4,18 @@
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">30dp</item> <!-- Adjust for more/less curvature -->
     </style>
+    <style name="CustomSwitch" parent="Widget.AppCompat.CompoundButton.Switch">
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:switchMinWidth">56dp</item>
+        <item name="trackTint">@color/switch_track</item>
+        <item name="trackTintMode">src_over</item>
+        <item name="thumbTint">@color/switch_thumb</item>
+    </style>
+    <style name="CustomRatingBar" parent="Widget.AppCompat.RatingBar.Small">
+        <item name="android:progressBackgroundTint">@color/starUnrated</item>
+        <item name="android:progressTint">@color/starRated</item>
+        <item name="android:secondaryProgressTint">@color/starUnrated</item>
+    </style>
+
 
 </resources>

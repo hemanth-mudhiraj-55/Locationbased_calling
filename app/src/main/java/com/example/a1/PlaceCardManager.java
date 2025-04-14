@@ -1,0 +1,211 @@
+package com.example.a1;
+
+import static im.zego.uikit.libuikitreport.CommonUtils.getApplication;
+
+import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
+import android.util.Log;
+import android.view.View;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RatingBar;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.cardview.widget.CardView;
+
+import com.squareup.picasso.Picasso;
+import com.zegocloud.uikit.prebuilt.call.ZegoUIKitPrebuiltCallService;
+import com.zegocloud.uikit.prebuilt.call.invite.ZegoUIKitPrebuiltCallInvitationConfig;
+
+import java.io.IOException;
+import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
+public class PlaceCardManager {
+    private final Context context;
+    private final CardView placeCard;
+    private final LinearLayout imageContainer;
+    private final TextView placeName, placeAddress, ratingText;
+    private final RatingBar placeRating;
+    private final ImageView placeSave;
+    private final ImageButton btnClose, btnCall, btnShare;
+
+    private boolean isSaved = false;
+    private Place currentPlace;
+    private final retrofit_interface apiService;
+
+    public PlaceCardManager(View rootView) {
+        this.context = rootView.getContext();
+        this.placeCard = rootView.findViewById(R.id.place_card);
+        this.imageContainer = rootView.findViewById(R.id.image_container);
+        this.placeName = rootView.findViewById(R.id.place_name);
+        this.placeAddress = rootView.findViewById(R.id.place_address);
+        this.placeRating = rootView.findViewById(R.id.place_rating);
+        this.ratingText = rootView.findViewById(R.id.rating_text);
+        this.placeSave = rootView.findViewById(R.id.place_save);
+        this.btnClose = rootView.findViewById(R.id.btn_close_card);
+        this.btnCall = rootView.findViewById(R.id.btn_call);
+        this.btnShare = rootView.findViewById(R.id.btn_share);
+
+        apiService = RetrofitClient.getApiService();
+        setupListeners();
+    }
+
+    private void setupListeners() {
+        btnClose.setOnClickListener(v -> hideCard());
+
+        placeSave.setOnClickListener(v -> {
+            isSaved = !isSaved;
+            updateSaveButton();
+            showToast(isSaved ? "Saved to favorites" : "Removed from favorites");
+        });
+
+        btnCall.setOnClickListener(v -> {
+
+
+            ZegoUIKitPrebuiltCallInvitationConfig callInvitationConfig = new ZegoUIKitPrebuiltCallInvitationConfig();
+            ZegoUIKitPrebuiltCallService.init(getApplication(), R.string.Zego_app_id, String.valueOf(R.string.Zego_app_sign), "**", "**",callInvitationConfig);
+
+            if (currentPlace != null && currentPlace.getPhoneNumber() != null) {
+                Intent intent = new Intent(Intent.ACTION_DIAL);
+                intent.setData(Uri.parse("tel:" + currentPlace.getPhoneNumber()));
+                context.startActivity(intent);
+            } else {
+                showToast("Phone number not available");
+            }
+        });
+
+        btnShare.setOnClickListener(v -> {
+            if (currentPlace != null) {
+                Intent shareIntent = new Intent(Intent.ACTION_SEND);
+                shareIntent.setType("text/plain");
+                shareIntent.putExtra(Intent.EXTRA_TEXT,
+                        "Check out " + currentPlace.getName() + " at " +
+                                currentPlace.getAddress() + "\n\n" +
+                                "https://maps.google.com/?q=" + currentPlace.getLatLng().latitude +
+                                "," + currentPlace.getLatLng().longitude);
+                context.startActivity(Intent.createChooser(shareIntent, "Share via"));
+            }
+        });
+    }
+
+    public void showPlaceCard(String placeId) {
+        fetchPlaceDetails(placeId);
+    }
+
+    private void fetchPlaceDetails(String placeId) {
+        // Assuming you have an API endpoint to get place details by ID
+        Call<Place> call = apiService.getPlaceDetails(placeId);
+        call.enqueue(new Callback<Place>() {
+            @Override
+            public void onResponse(Call<Place> call, Response<Place> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    currentPlace = response.body();
+                    updateCardContent();
+                    placeCard.setVisibility(View.VISIBLE);
+                } else {
+                    showToast("Failed to load place details");
+                    Log.e("PlaceCardManager", "Failed to fetch place details: " + response.message());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Place> call, Throwable t) {
+                showToast("Network error. Please try again.");
+                Log.e("PlaceCardManager", "Error fetching place details", t);
+            }
+        });
+    }
+
+    private void updateCardContent() {
+        if (currentPlace == null) return;
+
+        placeName.setText(currentPlace.getName());
+        placeAddress.setText(currentPlace.getAddress());
+
+        if (currentPlace.getRating() > 0) {
+            placeRating.setRating(currentPlace.getRating());
+            ratingText.setText(String.format("%.1f (%d)",
+                    currentPlace.getRating(),
+                    currentPlace.getTotalRatings()));
+        }
+
+        loadImages(currentPlace.getImageUrls());
+        updateSaveButton();
+    }
+
+    private void loadImages(List<String> imageUrls) {
+        imageContainer.removeAllViews();
+
+        if (imageUrls == null || imageUrls.isEmpty()) {
+            addDefaultImage();
+            return;
+        }
+
+        int imageSize = (int) (context.getResources().getDisplayMetrics().density * 200);
+        int margin = (int) (context.getResources().getDisplayMetrics().density * 8);
+
+        for (String imageUrl : imageUrls) {
+            ImageView imageView = new ImageView(context);
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                    imageSize,
+                    LinearLayout.LayoutParams.MATCH_PARENT);
+            params.setMargins(0, 0, margin, 0);
+            imageView.setLayoutParams(params);
+            imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+
+            Picasso.get()
+                    .load(imageUrl)
+                    .placeholder(R.drawable.ic_placeholder)
+                    .error(R.drawable.ic_placeholder)
+                    .into(imageView);
+
+            imageContainer.addView(imageView);
+        }
+    }
+
+    private void addDefaultImage() {
+        ImageView defaultImage = new ImageView(context);
+        defaultImage.setLayoutParams(new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT));
+        defaultImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        defaultImage.setImageResource(R.drawable.ic_placeholder);
+        imageContainer.addView(defaultImage);
+    }
+
+    private void updateSaveButton() {
+        placeSave.setImageResource(isSaved ?
+                R.drawable.ic_bookmark_filled : R.drawable.ic_bookmark_border);
+    }
+
+    public void hideCard() {
+        placeCard.setVisibility(View.GONE);
+    }
+    public void showCard() {
+        if (placeCard != null) {
+            placeCard.setVisibility(View.VISIBLE);
+        }
+    }
+
+    public boolean isCardVisible() {
+        return placeCard.getVisibility() == View.VISIBLE;
+    }
+
+    private void showToast(String message) {
+        Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+    }
+
+    public void setDetails(String Place_name) {
+        String firstWord = Place_name.trim().split("[^a-zA-Z]+")[0];
+        placeName.setText(firstWord);
+        placeAddress.setText(Place_name);
+        placeRating.setRating(4.5F);
+    }
+}

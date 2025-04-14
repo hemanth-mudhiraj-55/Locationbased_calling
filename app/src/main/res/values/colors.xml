@@ -5,4 +5,14 @@
     <color name="text_feild_bg">#FFFFFFFF</color>
     <color name="registration_bg">#FF000000</color>
     <color name="button_bg">#041D99</color>
+    <color name="switch_track">#4285F4</color> <!-- Google blue color -->
+    <color name="switch_track_disabled">#BDBDBD</color> <!-- Grey when disabled -->
+
+    <!-- For the switch thumb -->
+    <color name="switch_thumb">#FFFFFF</color> <!-- White thumb -->
+
+    <!-- For the container background -->
+    <color name="button_container_bg">#1A000000</color>
+    <color name="starUnrated">#FFD3D3D3</color>  <!-- Light gray -->
+    <color name="starRated">#FFFFC107</color>     <!-- Amber -->
 </resources>

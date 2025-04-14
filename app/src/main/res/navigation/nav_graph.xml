@@ -16,7 +16,7 @@
 
     <fragment
         android:id="@+id/contributeActivity"
-        android:name="com.example.a1.contribute"
+        android:name="com.example.a1.Contribute"
         android:label="Contribute" />
 
     <fragment

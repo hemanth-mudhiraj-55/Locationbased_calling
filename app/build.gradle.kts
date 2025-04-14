@@ -2,18 +2,24 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.google.android.libraries.mapsplatform.secrets.gradle.plugin)
     alias(libs.plugins.google.gms.google.services)
-    id ("androidx.navigation.safeargs")
+    id("androidx.navigation.safeargs")
 }
 
-
-
 android {
-
     namespace = "com.example.a1"
-    compileSdk = 35
+    compileSdk = 35 // Changed from 35 to 34
 
-    buildFeatures{
+    buildFeatures {
         viewBinding = true
+        dataBinding = true
+    }
+    packaging {
+        resources {
+            excludes.add("META-INF/DEPENDENCIES")
+            excludes.add("META-INF/io.netty.versions.properties")
+            excludes.add("META-INF/INDEX.LIST")
+
+        }
     }
 
     defaultConfig {
@@ -26,7 +32,6 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
-
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -36,6 +41,7 @@ android {
             )
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
@@ -43,38 +49,55 @@ android {
 }
 
 dependencies {
-
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.volley)
     implementation(libs.activity)
     implementation(libs.constraintlayout)
     implementation(libs.lottie)
-    implementation (libs.ccp)
+    implementation(libs.ccp)
 
-    implementation(libs.play.services.location.v2101) // Use the latest version
-    implementation(libs.play.services.maps.v1910) // Use the latest version
-    implementation(libs.play.services.auth) // Use the latest version
+    // Google Play Services
+    implementation(libs.play.services.location.v2101)
+    implementation(libs.play.services.maps.v1910)
+    implementation(libs.play.services.auth)
 
+    // Permission handling
+    implementation(libs.pub.easypermissions)
 
-    implementation (libs.pub.easypermissions)
+    // Lifecycle components
     implementation(libs.lifecycle.livedata.ktx)
     implementation(libs.lifecycle.viewmodel.ktx)
+
+    // Navigation components - use consistent versions from libs catalog
     implementation(libs.navigation.fragment)
-    implementation(libs.navigation.ui) // To take the permissions
+    implementation(libs.navigation.ui)
+    //implementation(libs.navigation.ui.ktx)
+    implementation(libs.firebase.appdistribution.gradle)
+    // Remove the direct implementation with specific version
+
+    // Testing
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
-    implementation (libs.retrofit) // HTTP requests
-    implementation (libs.retrofit2.converter.gson) // for
 
-    //noinspection UseTomlInstead
-    implementation ("androidx.navigation:navigation-fragment-ktx:2.8.9") // Use the latest version
-    implementation (libs.navigation.ui.ktx) // Use the latest version
-    
-    implementation (libs.drawerlayout)
+    // Networking
+    implementation(libs.retrofit)
+    implementation(libs.retrofit2.converter.gson)
 
+    // Data binding
+    annotationProcessor(libs.compiler)
+
+    // OpenTok
+    implementation(libs.opentok.android.sdk.v2261)
+
+    // UI components
+    implementation(libs.squareup.picasso)
+    implementation(libs.drawerlayout)
+    implementation(libs.viewpager2)
+    implementation(libs.exoplayer)
+    implementation(libs.com.github.bumptech.glide.glide)
+
+    // ZegoCloud
+    implementation ("com.github.ZEGOCLOUD:zego_uikit_prebuilt_call_android:+")
 }
-
-
-

@@ -5,17 +5,26 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="32" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="32"
         tools:ignore="ScopedStorage" />
-    <uses-permission android:name="android.permission.CAMERA"
+    <uses-permission
+        android:name="android.permission.CAMERA"
         tools:ignore="PermissionImpliesUnsupportedChromeOsHardware" />
 
-    <uses-feature android:name="android.hardware.location.gps"
+    <uses-feature
+        android:name="android.hardware.location.gps"
         android:required="false" />
     <uses-feature android:name="android.hardware.location.network" />
+
+
 
     <application
         android:allowBackup="true"
@@ -29,10 +38,25 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
 
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
         <activity
-            android:name=".Home_Screen"
-            android:exported="true"
-            android:label="@string/title_activity_home_screen" />
+            android:name=".Change_Password_Page"
+            android:exported="false" />
+        <activity
+            android:name=".FP_OTP_Verification_Page"
+            android:exported="false" />
+        <activity
+            android:name=".Recovery_Page"
+            android:exported="false" />
         <activity
             android:name=".terms_and_conditions"
             android:exported="false" />
@@ -40,11 +64,11 @@
             android:name=".video_call_interface"
             android:exported="false" />
         <activity
-            android:name=".login_pg"
+            android:name=".Login_pg"
             android:exported="false" />
         <activity
             android:name=".registration"
-            android:exported="false" />
+            android:exported="true" />
         <!--
              TODO: Before you run your application, you need a Google Maps API key.
 
@@ -58,10 +82,10 @@
         -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="@string/google_api_key" />
+            android:value="@string/Google_maps_API" />
 
         <activity
-            android:name=".maps_home"
+            android:name=".Home_Screen"
             android:exported="false" />
         <activity
             android:name=".MainActivity"

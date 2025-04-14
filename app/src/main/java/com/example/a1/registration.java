@@ -1,39 +1,59 @@
 package com.example.a1;
 
+import android.Manifest;
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.text.TextUtils;
+import android.util.Base64;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
+import com.google.gson.Gson;
 import com.hbb20.CountryCodePicker;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
-import java.util.concurrent.TimeUnit;
+import java.util.Locale;
 
-import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -42,88 +62,166 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class registration extends AppCompatActivity {
 
-    private static final int IMAGE_REQUEST_CODE = 1;
-    private static final int CAMERA_REQUEST_CODE = 2;
-    private Uri imageUri;
+    private static final int CAMERA_REQUEST_CODE = 100;
+    private static final int GALLERY_REQUEST_CODE = 101;
+    private static final int PERMISSION_REQUEST_CODE = 102;
+
+    private Uri selectedImageUri;
+    private ImageView profileImageView;
 
     // UI Elements
     private EditText uniqueUserId, fullName, email, emailOtp, mobileNumber, mobileOtp, password;
-    private TextView eMin,eSec,mMin,mSec;
+    private TextView eMin, eSec, mMin, mSec;
     private Spinner genderSpinner;
     private CheckBox termsConditions;
-    private Button registerButton, uploadProfilePictureButton, showTermsButton,skip_registration,mOTP_resend,eOTP_resend;
-    private LinearLayout emailOtpLayout, mobileOtpLayout,mOTPtimer,eOTPtimer;
+    private Button registerButton, uploadProfilePictureButton, showTermsButton, mOTP_resend, eOTP_resend;
+    private LinearLayout emailOtpLayout, mobileOtpLayout, mOTPtimer, eOTPtimer;
     private CountryCodePicker ccp;
+    private ActivityResultLauncher<Intent> cameraLauncher;
+    private ActivityResultLauncher<Intent> galleryLauncher;
+    private ActivityResultLauncher<String[]> permissionLauncher;
 
-    timer timer =new timer();
-
+    timer timer = new timer();
 
     // Retrofit for API calls
     private Retrofit retrofit;
     private retrofit_interface retrofitInterface;
-    private final String BASE_URL =getString(R.string.local_host_server);
-
+    private AlertDialog progressDialog;
+    private String BASE_URL;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_registration);
 
+        BASE_URL = getString(R.string.local_host_server);
 
-        // Initialize Retrofit
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                finish();
+            }
+        });
+
+        // Initialize activity result launchers
+        cameraLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == RESULT_OK) {
+                        if (selectedImageUri != null) {
+                            profileImageView.setImageURI(selectedImageUri);
+                            uploadProfilePictureButton.setText("Change Profile Picture");
+                        }
+                    }
+                });
+
+        galleryLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                        selectedImageUri = result.getData().getData();
+                        profileImageView.setImageURI(selectedImageUri);
+                        uploadProfilePictureButton.setText("Change Profile Picture");
+                    }
+                });
+
+        permissionLauncher = registerForActivityResult(
+                new ActivityResultContracts.RequestMultiplePermissions(),
+                permissions -> {
+                    Boolean cameraGranted = permissions.get(Manifest.permission.CAMERA);
+                    Boolean storageGranted = permissions.get(Manifest.permission.READ_EXTERNAL_STORAGE);
+
+                    if (cameraGranted != null && cameraGranted && storageGranted != null && storageGranted) {
+                        showImagePickerOptions();
+                    } else {
+                        Toast.makeText(this, "Permissions required to select image", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+        checkAndRequestPermissions();
+
         retrofit = new Retrofit.Builder()
                 .baseUrl(BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         retrofitInterface = retrofit.create(retrofit_interface.class);
 
-        // Initialize UI Elements
         initializeViews();
-
-        // Set up Gender Spinner
         setupGenderSpinner();
-
-        // Set up Button Click Listeners
         setupButtonListeners();
     }
 
-    // Initialize all UI elements
+    private void checkAndRequestPermissions() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED ||
+                    ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ||
+                    ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+
+                ActivityCompat.requestPermissions(this,
+                        new String[]{
+                                Manifest.permission.CAMERA,
+                                Manifest.permission.READ_EXTERNAL_STORAGE,
+                                Manifest.permission.WRITE_EXTERNAL_STORAGE
+                        },
+                        PERMISSION_REQUEST_CODE);
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == PERMISSION_REQUEST_CODE) {
+            boolean allPermissionsGranted = true;
+            for (int result : grantResults) {
+                if (result != PackageManager.PERMISSION_GRANTED) {
+                    allPermissionsGranted = false;
+                    break;
+                }
+            }
+            if (!allPermissionsGranted) {
+                Toast.makeText(this, "Required permissions were not granted", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (connectivityManager != null) {
+            NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+            return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+        }
+        return false;
+    }
+
     private void initializeViews() {
         uniqueUserId = findViewById(R.id.uniqueUserId);
         fullName = findViewById(R.id.fullName);
-
-
         email = findViewById(R.id.et_email);
         emailOtp = findViewById(R.id.emailOtp);
-        eOTPtimer=findViewById(R.id.eOTPtimer);
-        eOTP_resend=findViewById(R.id.resend1);
-        eMin =findViewById(R.id.eMin);
-        eSec=findViewById(R.id.eSec);
+        eOTPtimer = findViewById(R.id.eOTPtimer);
+        eOTP_resend = findViewById(R.id.resend1);
+        eMin = findViewById(R.id.eMin);
+        eSec = findViewById(R.id.eSec);
         emailOtpLayout = findViewById(R.id.email_otp_layout);
-
         mobileNumber = findViewById(R.id.mobileNumber);
         mobileOtp = findViewById(R.id.mobileOtp);
-        mOTPtimer=findViewById(R.id.mOTPtimer);
-        mMin=findViewById(R.id.mMin);
-        mSec =findViewById(R.id.mSec);
-        mOTP_resend=findViewById(R.id.resend2);
+        mOTPtimer = findViewById(R.id.mOTPtimer);
+        mMin = findViewById(R.id.mMin);
+        mSec = findViewById(R.id.mSec);
+        mOTP_resend = findViewById(R.id.resend2);
         mobileOtpLayout = findViewById(R.id.mobile_Otp_layout);
-
         password = findViewById(R.id.password);
-
         ccp = findViewById(R.id.ccp);
         ccp.registerCarrierNumberEditText(mobileNumber);
-
         genderSpinner = findViewById(R.id.genderSpinner);
-
-        skip_registration= findViewById(R.id.skip);
         termsConditions = findViewById(R.id.termsConditions);
         registerButton = findViewById(R.id.registerButton);
         uploadProfilePictureButton = findViewById(R.id.uploadProfilePictureButton);
         showTermsButton = findViewById(R.id.showTermsButton);
+        profileImageView = findViewById(R.id.profileImageView);
     }
 
-    // Set up Gender Spinner
     private void setupGenderSpinner() {
         ArrayList<String> genderList = new ArrayList<>();
         genderList.add("Prefer not to say");
@@ -148,11 +246,14 @@ public class registration extends AppCompatActivity {
         });
     }
 
-    // Set up Button Click Listeners
     private void setupButtonListeners() {
         showTermsButton.setOnClickListener(view -> navigateToTermsAndConditions());
-        uploadProfilePictureButton.setOnClickListener(view -> showImagePickerOptions());
-        skip_registration.setOnClickListener(view -> navigateToMainActivity());
+
+        uploadProfilePictureButton.setOnClickListener(view -> {
+            if (checkImagePermissions()) {
+                showImagePickerOptions();
+            }
+        });
 
         registerButton.setOnClickListener(view -> {
             if (registerButton.getText().equals("Confirm")) {
@@ -163,10 +264,121 @@ public class registration extends AppCompatActivity {
         });
     }
 
-    // Handle Registration Confirmation (Step 1)
+    private boolean checkImagePermissions() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+
+            permissionLauncher.launch(new String[]{
+                    Manifest.permission.CAMERA,
+                    Manifest.permission.READ_EXTERNAL_STORAGE
+            });
+            return false;
+        }
+        return true;
+    }
+
+    private void showImagePickerOptions() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Select Profile Picture");
+        builder.setItems(new String[]{"Take Photo", "Choose from Gallery"}, (dialog, which) -> {
+            switch (which) {
+                case 0:
+                    openCamera();
+                    break;
+                case 1:
+                    openGallery();
+                    break;
+            }
+        });
+        builder.setNegativeButton("Cancel", null);
+        builder.show();
+    }
+
+    private void openCamera() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            permissionLauncher.launch(new String[]{
+                    Manifest.permission.CAMERA,
+                    Manifest.permission.READ_EXTERNAL_STORAGE
+            });
+            return;
+        }
+
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+            File photoFile = createImageFile();
+            if (photoFile != null) {
+                selectedImageUri = FileProvider.getUriForFile(this,
+                        getPackageName() + ".provider",
+                        photoFile);
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, selectedImageUri);
+                cameraLauncher.launch(takePictureIntent);
+            }
+        }
+    }
+
+    private void openGallery() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            permissionLauncher.launch(new String[]{
+                    Manifest.permission.READ_EXTERNAL_STORAGE
+            });
+            return;
+        }
+
+        Intent pickPhotoIntent = new Intent(Intent.ACTION_PICK,
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        pickPhotoIntent.setType("image/*");
+        galleryLauncher.launch(pickPhotoIntent);
+    }
+    private File createImageFile() {
+        try {
+            String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
+            String imageFileName = "JPEG_" + timeStamp + "_";
+            File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+
+            return File.createTempFile(
+                    imageFileName,
+                    ".jpg",
+                    storageDir
+            );
+        } catch (IOException e) {
+            Log.e("Registration", "Error creating image file", e);
+            Toast.makeText(this, "Could not create image file", Toast.LENGTH_SHORT).show();
+            return null;
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode == RESULT_OK) {
+            switch (requestCode) {
+                case CAMERA_REQUEST_CODE:
+                    if (selectedImageUri != null) {
+                        profileImageView.setImageURI(selectedImageUri);
+                        uploadProfilePictureButton.setText("Change Profile Picture");
+                    }
+                    break;
+
+                case GALLERY_REQUEST_CODE:
+                    if (data != null && data.getData() != null) {
+                        selectedImageUri = data.getData();
+                        profileImageView.setImageURI(selectedImageUri);
+                        uploadProfilePictureButton.setText("Change Profile Picture");
+                    }
+                    break;
+            }
+        }
+    }
+
     private void handleRegistrationConfirmation() {
+        if (!isNetworkAvailable()) {
+            showToast("No internet connection available");
+            return;
+        }
+
         String userId = uniqueUserId.getText().toString().trim();
-        String name = fullName.getText().toString().trim();
+        String name = fullName.getText().toString();
         String emailText = email.getText().toString().trim();
         String mobileText = mobileNumber.getText().toString().trim();
         String passwordText = password.getText().toString().trim();
@@ -174,27 +386,26 @@ public class registration extends AppCompatActivity {
         if (!validateInputs(userId, name, emailText, mobileText, passwordText)) {
             return;
         }
+
         String fullPhoneNumber = ccp.getFullNumberWithPlus();
         HashMap<String, String> data = new HashMap<>();
         data.put("email", emailText);
         data.put("uid", userId);
-        data.put("mobile" , fullPhoneNumber);
-        data.put("name",name);
+        data.put("mobile", fullPhoneNumber);
+        data.put("name", name);
 
-        Call<fetch_confirm_registration> call = retrofitInterface.confirm_Registration(data);
-        call.enqueue(new Callback<fetch_confirm_registration>() {
+        showProgressDialog("Verifying...");
+
+        Call<Fetch_confirm_registration> call = retrofitInterface.confirm_Registration(data);
+        call.enqueue(new Callback<Fetch_confirm_registration>() {
             @Override
-            public void onResponse(Call<fetch_confirm_registration> call, Response<fetch_confirm_registration> response) {
+            public void onResponse(Call<Fetch_confirm_registration> call, Response<Fetch_confirm_registration> response) {
+                dismissProgressDialog();
                 if (response.code() == 200) {
-                    // Email OTP has sent at backend
-                    // Mobile OTP has sent at backend
-
-                    // Calling timer class
                     timer.setMin(eMin);
                     timer.setSec(eSec);
                     timer.setMin(mMin);
                     timer.setSec(mSec);
-
 
                     disableInputFields();
                     registerButton.setText("Submit");
@@ -207,57 +418,164 @@ public class registration extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(Call<fetch_confirm_registration> call, Throwable t) {
+            public void onFailure(Call<Fetch_confirm_registration> call, Throwable t) {
+                dismissProgressDialog();
                 showToast("Network error. Please try again.");
+                Log.e("Registration", "Error: ", t);
             }
         });
     }
 
-    // Handle Registration Submission (Step 2)
     private void handleRegistrationSubmission() {
+        if (!isNetworkAvailable()) {
+            showToast("No internet connection available");
+            return;
+        }
+
         String emailOtpText = emailOtp.getText().toString().trim();
         String mobileOtpText = mobileOtp.getText().toString().trim();
+        String encryptedPassword = EncryptionUtils.encrypt(password.getText().toString().trim());
 
         if (!isValidOtp(emailOtpText) || !isValidOtp(mobileOtpText)) {
             showToast("Please enter valid 6-digit OTPs.");
             return;
         }
 
-        //get the profile image from a user and put it in hashMap
-
         String fullPhoneNumber = ccp.getFullNumberWithPlus();
+
         HashMap<String, String> data = new HashMap<>();
         data.put("email", email.getText().toString().trim());
-        data.put("password", password.getText().toString().trim());
+        data.put("password", encryptedPassword);
         data.put("gender", genderSpinner.getSelectedItem().toString());
         data.put("uid", uniqueUserId.getText().toString().trim());
         data.put("mobile", fullPhoneNumber);
-        data.put("email_otp",emailOtpText);
-        data.put("mobile_otp",mobileOtpText);
+        data.put("email_otp", emailOtpText);
+        data.put("mobile_otp", mobileOtpText);
+        data.put("name", fullName.getText().toString());
 
-        showToast(email.getText().toString().trim());
+        if (selectedImageUri != null) {
+            String imageBase64 = convertImageToBase64(selectedImageUri);
+            if (imageBase64 != null) {
+                data.put("profile_pic", "data:image/jpeg;base64," + imageBase64);
+            }
+        }
 
-        Call<fetch_submit_registration> call = retrofitInterface.submit_Registration(data);
-        call.enqueue(new Callback<fetch_submit_registration>() {
+        showProgressDialog("Registering...");
+
+        Call<Fetch_submit_registration> call = retrofitInterface.submit_Registration(data);
+        call.enqueue(new Callback<Fetch_submit_registration>() {
             @Override
-            public void onResponse(Call<fetch_submit_registration> call, Response<fetch_submit_registration> response) {
-                if (response.code() == 200) {
-                    showToast("Registration successful!");
-                    navigateToMainActivity();
+            public void onResponse(Call<Fetch_submit_registration> call, Response<Fetch_submit_registration> response) {
+                dismissProgressDialog();
+
+                if (response.isSuccessful() && response.body() != null) {
+                    Fetch_submit_registration registrationResponse = response.body();
+                    if (registrationResponse.isSuccess()) {
+                        saveUserData(registrationResponse);
+                        showToast("Registration successful!");
+                        navigateToMainActivity();
+                    } else {
+                        showToast(registrationResponse.getMessage());
+                    }
                 } else {
-                    showToast(Integer.toString(response.code()));
-                    showToast("Error: " + response.message());
+                    try {
+                        if (response.errorBody() != null) {
+                            String errorBody = response.errorBody().string();
+                            showToast("Error: " + errorBody);
+                            Log.d("error...................",errorBody);
+                        } else {
+                            showToast("Error: " + response.code());
+                        }
+                    } catch (Exception e) {
+                        showToast("Error processing response");
+                    }
                 }
             }
 
             @Override
-            public void onFailure(Call<fetch_submit_registration> call, Throwable t) {
+            public void onFailure(Call<Fetch_submit_registration> call, Throwable t) {
+                dismissProgressDialog();
                 showToast("Network error. Please try again.");
+                Log.e("Registration", "Error: ", t);
             }
         });
     }
 
-    // Disable input fields after confirmation
+    private String convertImageToBase64(Uri imageUri) {
+        try {
+            InputStream inputStream = getContentResolver().openInputStream(imageUri);
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = true;
+            BitmapFactory.decodeStream(inputStream, null, options);
+            inputStream.close();
+
+            // Calculate inSampleSize
+            options.inSampleSize = calculateInSampleSize(options, 500, 500);
+            options.inJustDecodeBounds = false;
+
+            inputStream = getContentResolver().openInputStream(imageUri);
+            Bitmap bitmap = BitmapFactory.decodeStream(inputStream, null, options);
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 70, byteArrayOutputStream);
+            byte[] byteArray = byteArrayOutputStream.toByteArray();
+            bitmap.recycle();
+            return Base64.encodeToString(byteArray, Base64.DEFAULT);
+        } catch (Exception e) {
+            Log.e("ImageConversion", "Error converting image", e);
+            return null;
+        }
+    }
+
+    private int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
+        final int height = options.outHeight;
+        final int width = options.outWidth;
+        int inSampleSize = 1;
+
+        if (height > reqHeight || width > reqWidth) {
+            final int halfHeight = height / 2;
+            final int halfWidth = width / 2;
+
+            while ((halfHeight / inSampleSize) >= reqHeight
+                    && (halfWidth / inSampleSize) >= reqWidth) {
+                inSampleSize *= 2;
+            }
+        }
+        return inSampleSize;
+    }
+
+    private void saveUserData(Fetch_submit_registration response) {
+        SharedPreferences prefs = getSharedPreferences("UserPrefs", MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+
+        editor.putString("authToken", response.getToken());
+        editor.putString("userId", response.getUser().getUid());
+        editor.putString("userEmail", response.getUser().getEmail());
+        editor.putString("userName", response.getUser().getName());
+        editor.putString("userMobile", response.getUser().getMobile());
+        editor.putString("profilePic", response.getUser().getProfilePic());
+
+        editor.apply();
+    }
+
+    private void showProgressDialog(String message) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setCancelable(false);
+
+        View view = LayoutInflater.from(this).inflate(R.layout.dialog_progress, null);
+        TextView progressText = view.findViewById(R.id.progress_text);
+        progressText.setText(message);
+
+        builder.setView(view);
+        progressDialog = builder.create();
+        progressDialog.show();
+    }
+
+    private void dismissProgressDialog() {
+        if (progressDialog != null && progressDialog.isShowing()) {
+            progressDialog.dismiss();
+        }
+    }
+
     private void disableInputFields() {
         uniqueUserId.setEnabled(false);
         fullName.setEnabled(false);
@@ -268,7 +586,6 @@ public class registration extends AppCompatActivity {
         genderSpinner.setEnabled(false);
     }
 
-    // Validate all inputs
     private boolean validateInputs(String userId, String name, String emailText, String mobileText, String passwordText) {
         if (!isValidUsername(userId)) {
             showToast("Invalid User ID. Use 3-30 chars, letters, numbers, _ and . allowed.");
@@ -297,22 +614,16 @@ public class registration extends AppCompatActivity {
         return true;
     }
 
-    // Navigate to Terms & Conditions
     private void navigateToTermsAndConditions() {
-//        Intent intent = new Intent(this, terms_and_conditions.class);
-//        startActivity(intent);
         setContentView(R.layout.activity_terms_and_conditions);
     }
 
-    // Navigate to Main Activity
     private void navigateToMainActivity() {
         Intent intent = new Intent(registration.this, Home_Screen.class);
         startActivity(intent);
         finish();
     }
 
-
-    // Validation Methods
     private boolean isValidUsername(String username) {
         String regex = "^(?!.*[_.]{2})(?![_.])[a-zA-Z0-9_.]{3,30}(?<![_.])$";
         return username.matches(regex);
@@ -336,119 +647,7 @@ public class registration extends AppCompatActivity {
         return otp.matches("^\\d{6}$");
     }
 
-    // Show Toast Message
     private void showToast(String message) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
-
-
-    // Method to open the gallery for image selection
-
-    private void showImagePickerOptions() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Choose Image Source");
-        builder.setItems(new String[]{"Camera", "Gallery"}, (dialog, which) -> {
-            switch (which) {
-                case 0:
-                    openCamera();
-                    break;
-                case 1:
-                    openGallery();
-                    break;
-            }
-        });
-        builder.show();
-    }
-
-    // Method to open the camera
-    private void openCamera() {
-        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        // Create a file to save the captured image
-        File photoFile = createImageFile();
-        if (photoFile != null) {
-            imageUri = Uri.fromFile(photoFile);
-            intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
-            cameraLauncher.launch(intent);
-        }
-    }
-
-    // Method to create a temporary file for the camera image
-    private File createImageFile() {
-        try {
-            File storageDir = getExternalFilesDir("images");
-            return File.createTempFile("IMG_", ".jpg", storageDir);
-        } catch (IOException e) {
-            e.printStackTrace();
-            Toast.makeText(this, "Failed to create image file", Toast.LENGTH_SHORT).show();
-            return null;
-        }
-    }
-
-    // Method to open the gallery
-    private void openGallery() {
-        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        galleryLauncher.launch(intent);
-    }
-
-    // ActivityResultLauncher for camera
-    private final ActivityResultLauncher<Intent> cameraLauncher =
-            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
-                if (result.getResultCode() == RESULT_OK) {
-                    uploadImage(imageUri); // Upload the captured image
-                }
-            });
-
-    // ActivityResultLauncher for gallery
-    private final ActivityResultLauncher<Intent> galleryLauncher =
-            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
-                if (result.getResultCode() == RESULT_OK && result.getData() != null) {
-                    imageUri = result.getData().getData();
-                    uploadImage(imageUri); // Upload the selected image
-                }
-            });
-
-    // Method to upload the image
-    private void uploadImage(Uri imageUri) {
-        File imageFile = new File(imageUri.getPath());
-
-        // Check file size (5MB = 5 * 1024 * 1024 bytes)
-        long fileSizeInBytes = imageFile.length();
-        long fileSizeInMB = fileSizeInBytes / (1024 * 1024);
-
-        if (fileSizeInMB > 5) {
-            Toast.makeText(this, "Image size must be less than 5MB", Toast.LENGTH_SHORT).show();
-            return; // Exit if the file is too large
-        }
-
-//        // Create a MultipartBody.Part from the file
-//        RequestBody requestFile = RequestBody.create(imageFile, MediaType.parse("image/*"));
-//        MultipartBody.Part imagePart = MultipartBody.Part.createFormData("image", imageFile.getName(), requestFile);
-//
-//        // Get the Retrofit API service instance
-//        ApiService apiService = RetrofitClient.getApiService();
-//
-//        // Perform the upload in a background thread
-//        new Thread(() -> {
-//            try {
-//                // Execute the upload request
-//                retrofit2.Response<ResponseBody> response = apiService.uploadImage(imagePart).execute();
-//
-//                // Handle the response on the UI thread
-//                runOnUiThread(() -> {
-//                    if (response.isSuccessful()) {
-//                        Toast.makeText(MainActivity.this, "Upload Successful!", Toast.LENGTH_SHORT).show();
-//                    } else {
-//                        Toast.makeText(MainActivity.this, "Upload Failed!", Toast.LENGTH_SHORT).show();
-//                    }
-//                });
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//                runOnUiThread(() -> Toast.makeText(MainActivity.this, "Upload Error!", Toast.LENGTH_SHORT).show());
-//            }
-//        }).start();
-    }
-
-
-
-
 }

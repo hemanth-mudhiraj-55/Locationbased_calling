@@ -1,49 +1,260 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
+    android:background="@drawable/login_bt_gradient"
     tools:context=".ExploreFragment">
 
+    <!-- Search EditText -->
+    <EditText
+        android:id="@+id/SearchBar"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_margin="16dp"
+        android:layout_alignParentTop="true"
+        android:hint="Search here"
+        android:background="@color/white"
+        android:padding="12dp"
+        android:textColor="#000"
+        android:textColorHint="@android:color/darker_gray"
+        android:drawableStart="@drawable/explore"
+        android:elevation="8dp"
+        android:inputType="text" />
 
+    <androidx.recyclerview.widget.RecyclerView
+        android:visibility="gone"
+        android:id="@+id/scroll"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:layout_below="@id/SearchBar"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="1dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="8dp"
+        android:background="@drawable/recycler_background"
+        android:elevation="6dp" />
+
+    <!-- Button container at bottom -->
     <LinearLayout
+        android:id="@+id/button_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_alignParentBottom="true"
+        android:layout_margin="16dp"
+        android:background="@drawable/login_bt_gradient"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:elevation="8dp"
+        >
 
-        <EditText
-            android:id="@+id/search_bar"
-            android:layout_width="match_parent"
+        <!-- Switch Button -->
+        <Switch
+            android:id="@+id/switch_active"
+            android:layout_width="wrap_content"
             android:layout_height="50dp"
-            android:layout_margin="10dp"
-            android:hint="Search Here"
-            android:textColor="@color/black"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="8dp"
+            android:text="Active"
+            android:textColor="@android:color/white"
+            android:thumbTint="@color/switch_thumb"
+            style="@style/CustomSwitch"
+            android:trackTint="@color/color"
+            android:showText="true"
+            android:switchPadding="8dp"/>
 
-        <!-- RecyclerView for Autocomplete Suggestions -->
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/scroll"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/search_bar" />
+        <!-- Spacer -->
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <!-- Location ImageButton -->
+        <ImageButton
+            android:id="@+id/btn_location"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:layout_marginEnd="30dp"
+            android:contentDescription="Current location"
+            android:elevation="4dp"
+            android:src="@drawable/present_location" />
     </LinearLayout>
 
-    <!-- 🔹 Replace this if GoMaps has an equivalent map fragment -->
+    <!-- Map Fragment (between search and buttons) -->
     <fragment
         android:id="@+id/map"
         android:layout_width="match_parent"
-        app:layout_constraintTop_toBottomOf="@id/search_bar"
         android:layout_height="match_parent"
+        android:layout_below="@id/SearchBar"
+        android:layout_above="@id/button_container"
         android:name="com.google.android.gms.maps.SupportMapFragment"
         tools:layout="@layout/activity_main"/>
+    <!-- Place Details Card (initially hidden) -->
 
-    <!-- Search Bar -->
+    <!-- https://maps.gomaps.pro/maps/api/place/queryautocomplete/json?input= -->
 
-</LinearLayout>
+
+    <!-- Place Details Card -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/place_card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/button_container"
+        android:elevation="16dp"
+        android:visibility="visible"
+        app:cardCornerRadius="12dp"
+        app:cardBackgroundColor="@android:color/white">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/login_bt_gradient"
+            android:orientation="vertical">
+
+            <!-- Close button at top right -->
+            <ImageButton
+                android:id="@+id/btn_close_card"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_gravity="end"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:clickable="true"
+                android:contentDescription="Close"
+                android:focusable="true"
+                android:src="@drawable/ic_close"
+                app:tint="@android:color/darker_gray" />
+
+            <!-- Horizontal ScrollView for images -->
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                android:scrollbars="none"
+                android:contentDescription="@string/horizontal_scroll_content_description">
+
+                <LinearLayout
+                    android:id="@+id/image_container"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal"
+                    android:importantForAccessibility="no"
+                    android:contentDescription="@string/image_container_content_description" />
+            </HorizontalScrollView>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <!-- Title and category -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/place_name"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Charminar"
+                        android:textColor="@android:color/black"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <ImageView
+                        android:id="@+id/place_save"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_bookmark_border"
+                        app:tint="@color/colorPrimary" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/place_address"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Charminar Rd, Char Kaman, Ghansi Bazaar, Hyderabad, Telangana 500002"
+                    android:textColor="@android:color/darker_gray"
+                    android:textSize="14sp" />
+
+                <!-- Rating and price -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+<!--                    <RatingBar-->
+<!--                        -->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:layout_weight="1"-->
+<!--                        android:isIndicator="true"-->
+
+<!--                        android:numStars="5"-->
+<!--                        android:stepSize="0.5"-->
+<!--                        android:transformPivotX="0dp"-->
+<!--                        android:transformPivotY="0dp" />-->
+                    <RatingBar
+                        android:id="@+id/place_rating"
+                        android:progressTint="@color/starRated"
+                        android:secondaryProgressTint="@color/starUnrated"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:backgroundTint="@color/starUnrated"/>
+
+                    <TextView
+                        android:id="@+id/rating_text"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:layout_weight="1"
+                        android:gravity="start|center_vertical"
+                        android:text="14,356"
+                        android:textColor="@color/white"
+                        android:textSize="14sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <ImageButton
+                        android:id="@+id/btn_call"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+
+                        android:contentDescription="Call"
+                        android:padding="12dp"
+                        android:scaleType="centerInside"
+                        android:src="@drawable/ic_call"
+                        app:tint="@color/colorPrimary" />
+                    <!-- android:background="?attr/selectableItemBackgroundBorderless"-->
+
+                    <ImageButton
+                        android:id="@+id/btn_share"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+
+                        android:contentDescription="Share"
+                        android:padding="12dp"
+                        android:src="@drawable/ic_share" />
+                    <!-- android:background="?attr/selectableItemBackgroundBorderless"-->
+
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+</RelativeLayout>

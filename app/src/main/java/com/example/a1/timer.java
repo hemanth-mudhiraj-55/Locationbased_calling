@@ -14,7 +14,7 @@ public class timer extends AppCompatActivity {
 
     private TextView min,sec;
     private CountDownTimer countDownTimer;
-    private final long startTime = 2 * 60 * 1000; // 2 minutes in milliseconds
+    private final long startTime = 5 * 60 * 1000; // 2 minutes in milliseconds
     private final long interval = 1000; // 1 second interval
     @Override
     protected void onCreate( Bundle savedInstanceState) {
@@ -65,5 +65,8 @@ public class timer extends AppCompatActivity {
         if (countDownTimer != null) {
             countDownTimer.cancel();
         }
+    }
+
+    public void resetTimer(TextView eMin, TextView eSec) {
     }
 }

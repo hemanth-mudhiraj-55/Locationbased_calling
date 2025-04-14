@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:background="@drawable/login_bt_gradient"
+    tools:context=".RecoveryActivity">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="3"
+        android:layout_marginTop="20dp"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="20dp"
+            android:padding="30dp"
+            android:layout_marginRight="50dp"
+            android:layout_marginLeft="50dp"
+            android:background="@drawable/rounded_top_container"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/heading"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="RECOVERY"
+                android:layout_marginBottom="20dp"
+                android:textColor="@color/button_bg"
+                android:textSize="30sp"
+                android:fontFamily="@font/splash_screen_font1" />
+
+            <!-- Email Field -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/email_layout"
+                android:orientation="vertical">
+                <EditText
+                    android:id="@+id/et_email"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:background="@android:color/transparent"
+                    android:drawableLeft="@drawable/ic_mail"
+                    android:hint="EMAIL"
+                    android:padding="10dp"
+                    android:textColorHint="@color/registration_bg" />
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="2dp"
+                    android:background="@color/registration_bg" />
+            </LinearLayout>
+
+            <!-- Mobile Number Layout -->
+            <LinearLayout
+                android:layout_marginTop="20dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:id="@+id/mobile_layout">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:background="#E44E4A4A">
+                    <com.hbb20.CountryCodePicker
+                        android:id="@+id/ccp"
+                        android:layout_width="100dp"
+                        android:layout_height="50sp"
+                        android:layout_margin="4dp"
+                        android:background="@drawable/rounded_corner"
+                        android:backgroundTint="@color/white"
+                        app:ccp_arrowColor="@color/black"
+                        app:ccp_contentColor="@color/black"
+                        app:ccp_flagBorderColor="@color/black" />
+                    <EditText
+                        android:id="@+id/mobileNumber"
+                        android:layout_width="match_parent"
+                        android:layout_height="50sp"
+                        android:layout_marginTop="4sp"
+                        android:layout_marginBottom="4sp"
+                        android:background="@drawable/rounded_corner"
+                        android:drawableLeft="@drawable/mobile"
+                        android:hint=" MOBILE"
+                        android:textSize="15sp"
+                        android:digits="0123456789"
+                        android:textColor="@color/registration_bg"
+                        android:maxLength="11"
+                        android:padding="10dp"
+                        android:textColorHint="@color/registration_bg" />
+                </LinearLayout>
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="2dp"
+                    android:background="@color/registration_bg" />
+            </LinearLayout>
+
+            <!-- Submit Button -->
+            <ImageButton
+                android:id="@+id/btn_recovery_submit"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_gravity="end"
+                android:layout_margin="30dp"
+                android:background="@drawable/circular_button"
+                android:src="@drawable/forword_arrow"
+                android:contentDescription="."/>
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

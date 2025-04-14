@@ -1,10 +1,11 @@
 <resources>
-    <string name="app_name">MyWindow</string>
+    <string name="app_name">MyWindows</string>
     <string name="title_activity_maps">MapsActivity</string>
     <string name="title_activity_maps_home">maps_home</string>
-    <string name="gomaps_api">AlzaSyuN5lGWKdnjdep8QvSrYf3r-CwfRwUvudG</string>
+    <string name="Google_maps_API">AIzaSyAaH0YIqYZhvj-95i0XfR3yLAj4g6R7lgU</string>
+    <string name="gomaps_api">AlzaSynMiIquh7nn9glzqMG1z1LfDw2rlcjl7Ec</string>
     <string name="agree_terms"><u>Agree Terms &amp; Conditions</u></string>
-    <string name="gomaps_link">https://maps.gomaps.pro/maps/api/place/queryautocomplete/json?input=ind&amp;key=AlzaSyuN5lGWKdnjdep8QvSrYf3r-CwfRwUvudG</string>
+    <string name="gomaps_link">https://maps.gomaps.pro/maps/api/place/queryautocomplete/json?input=</string>
     <string name="underlined_text"><u>Forget Password...!</u></string>
     <string name="dont_have_account"><u>Don\'t hava an Account</u></string>
     <string name="terms">"We collect your Name, Email, Phone Number, and Profile Picture to personalize your experience. Your data is securely stored and will not be shared with third parties without your consent. You can modify or delete your data anytime in the settings. By continuing, you agree to our Privacy Policy and Terms of Service."</string>
@@ -14,6 +15,18 @@
     <string name="title_dashboard">Contribute</string>
     <string name="title_notifications">Notifications</string>
     <string name="profile">Profile</string>
+    <string name="error_call_history">Error in Fetching the Call History.Please try Later</string>
+    <string name="logout_success">Logged Out Successfully</string>
+    <string name="error_user_data">Error in Fetching the user Data</string>
+    <string name="current_location">Your Current Location</string>
+    <string name="Zego_app_id">1940689671</string>
+    <string name="Zego_app_sign">ed01ca79513e9f901b52f0bc5c2396a98c26364df1bc030998c7d2aef06406b6</string>
+    <string name="horizontal_scroll_content_description">Horizontal scrollable content</string>
+    <string name="image_container_content_description">Container for horizontally scrollable images</string>
+    <string name="rating_description">Rating: 3.5 stars out of 5</string>
+
+
+    <string name="network_error">Network error</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

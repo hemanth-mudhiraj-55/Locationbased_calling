@@ -1,14 +1,11 @@
 package com.example.a1;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MenuItem;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
+
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 
@@ -16,7 +13,7 @@ public class Home_Screen extends AppCompatActivity {
 
     BottomNavigationView bottomNavigationView ;
     ExploreFragment exploreFragment = new ExploreFragment();
-    contribute contribute = new contribute();
+    Contribute contribute = new Contribute();
     NotificationsFragment notificationsFragment = new NotificationsFragment();
     profile profile = new profile();
 
