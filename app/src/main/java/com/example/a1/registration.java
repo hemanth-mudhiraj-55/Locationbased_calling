@@ -65,6 +65,15 @@ public class registration extends AppCompatActivity {
     private static final int CAMERA_REQUEST_CODE = 100;
     private static final int GALLERY_REQUEST_CODE = 101;
     private static final int PERMISSION_REQUEST_CODE = 102;
+    private static final String PREFS_NAME = "UserPrefs";
+    private static final String KEY_IS_LOGGED_IN = "isLoggedIn";
+    private static final String KEY_AUTH_TOKEN = "authToken";
+    private static final String KEY_USER_ID = "userId";
+    private static final String KEY_USER_EMAIL = "userEmail";
+    private static final String KEY_USER_NAME = "userName";
+    private static final String KEY_USER_MOBILE = "userMobile";
+    private static final String KEY_PROFILE_PIC = "profilePic";
+    private static final String KEY_USER_GENDER = "userGender";
 
     private Uri selectedImageUri;
     private ImageView profileImageView;
@@ -81,9 +90,8 @@ public class registration extends AppCompatActivity {
     private ActivityResultLauncher<Intent> galleryLauncher;
     private ActivityResultLauncher<String[]> permissionLauncher;
 
-    timer timer = new timer();
-
-    // Retrofit for API calls
+    private timer timer = new timer();
+    private SessionManager sessionManager;
     private Retrofit retrofit;
     private retrofit_interface retrofitInterface;
     private AlertDialog progressDialog;
@@ -92,6 +100,17 @@ public class registration extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Initialize session manager
+        sessionManager = new SessionManager(getApplicationContext());
+
+        // Check if user is already logged in
+        if (sessionManager.isLoggedIn()) {
+            navigateToMainActivity();
+            finish();
+            return;
+        }
+
         setContentView(R.layout.activity_registration);
 
         BASE_URL = getString(R.string.local_host_server);
@@ -103,15 +122,20 @@ public class registration extends AppCompatActivity {
             }
         });
 
-        // Initialize activity result launchers
+        initializeActivityResultLaunchers();
+        initializeRetrofit();
+        initializeViews();
+        setupGenderSpinner();
+        setupButtonListeners();
+    }
+
+    private void initializeActivityResultLaunchers() {
         cameraLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
-                    if (result.getResultCode() == RESULT_OK) {
-                        if (selectedImageUri != null) {
-                            profileImageView.setImageURI(selectedImageUri);
-                            uploadProfilePictureButton.setText("Change Profile Picture");
-                        }
+                    if (result.getResultCode() == RESULT_OK && selectedImageUri != null) {
+                        profileImageView.setImageURI(selectedImageUri);
+                        uploadProfilePictureButton.setText("Change Profile Picture");
                     }
                 });
 
@@ -134,21 +158,17 @@ public class registration extends AppCompatActivity {
                     if (cameraGranted != null && cameraGranted && storageGranted != null && storageGranted) {
                         showImagePickerOptions();
                     } else {
-                        Toast.makeText(this, "Permissions required to select image", Toast.LENGTH_SHORT).show();
+                        showToast("Permissions required to select image");
                     }
                 });
+    }
 
-        checkAndRequestPermissions();
-
+    private void initializeRetrofit() {
         retrofit = new Retrofit.Builder()
                 .baseUrl(BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         retrofitInterface = retrofit.create(retrofit_interface.class);
-
-        initializeViews();
-        setupGenderSpinner();
-        setupButtonListeners();
     }
 
     private void checkAndRequestPermissions() {
@@ -157,13 +177,11 @@ public class registration extends AppCompatActivity {
                     ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ||
                     ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
 
-                ActivityCompat.requestPermissions(this,
-                        new String[]{
-                                Manifest.permission.CAMERA,
-                                Manifest.permission.READ_EXTERNAL_STORAGE,
-                                Manifest.permission.WRITE_EXTERNAL_STORAGE
-                        },
-                        PERMISSION_REQUEST_CODE);
+                permissionLauncher.launch(new String[]{
+                        Manifest.permission.CAMERA,
+                        Manifest.permission.READ_EXTERNAL_STORAGE,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE
+                });
             }
         }
     }
@@ -180,7 +198,7 @@ public class registration extends AppCompatActivity {
                 }
             }
             if (!allPermissionsGranted) {
-                Toast.makeText(this, "Required permissions were not granted", Toast.LENGTH_SHORT).show();
+                showToast("Required permissions were not granted");
             }
         }
     }
@@ -329,6 +347,7 @@ public class registration extends AppCompatActivity {
         pickPhotoIntent.setType("image/*");
         galleryLauncher.launch(pickPhotoIntent);
     }
+
     private File createImageFile() {
         try {
             String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
@@ -342,7 +361,7 @@ public class registration extends AppCompatActivity {
             );
         } catch (IOException e) {
             Log.e("Registration", "Error creating image file", e);
-            Toast.makeText(this, "Could not create image file", Toast.LENGTH_SHORT).show();
+            showToast("Could not create image file");
             return null;
         }
     }
@@ -434,7 +453,7 @@ public class registration extends AppCompatActivity {
 
         String emailOtpText = emailOtp.getText().toString().trim();
         String mobileOtpText = mobileOtp.getText().toString().trim();
-        String encryptedPassword = EncryptionUtils.encrypt(password.getText().toString().trim());
+        String encryptedPassword = EncryptionUtils.encrypt(password.getText().toString());
 
         if (!isValidOtp(emailOtpText) || !isValidOtp(mobileOtpText)) {
             showToast("Please enter valid 6-digit OTPs.");
@@ -462,16 +481,48 @@ public class registration extends AppCompatActivity {
 
         showProgressDialog("Registering...");
 
-        Call<Fetch_submit_registration> call = retrofitInterface.submit_Registration(data);
-        call.enqueue(new Callback<Fetch_submit_registration>() {
+        Call<LoginResponse> call = retrofitInterface.submit_Registration(data);
+        call.enqueue(new Callback<LoginResponse>() {
             @Override
-            public void onResponse(Call<Fetch_submit_registration> call, Response<Fetch_submit_registration> response) {
+            public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
                 dismissProgressDialog();
 
                 if (response.isSuccessful() && response.body() != null) {
-                    Fetch_submit_registration registrationResponse = response.body();
+                    LoginResponse registrationResponse = response.body();
                     if (registrationResponse.isSuccess()) {
-                        saveUserData(registrationResponse);
+                        // Save user details to SharedPreferences
+                        SharedPreferences sharedPreferences = getSharedPreferences("UserPrefs", MODE_PRIVATE);
+                        SharedPreferences.Editor editor = sharedPreferences.edit();
+
+                        // Store basic user info
+                        editor.putString("userId", registrationResponse.getUser().getUserId());
+                        editor.putString("token", registrationResponse.getToken());
+                        editor.putString("email", registrationResponse.getUser().getEmail());
+                        editor.putString("name", registrationResponse.getUser().getName());
+                        editor.putString("mobile", registrationResponse.getUser().getMobile());
+                        editor.putString("profilePic", registrationResponse.getUser().getProfilePic());
+                        editor.putString("gender", registrationResponse.getUser().getGender());
+
+                        // Store additional fields if available
+                        if (registrationResponse.getBalance() != 0) {
+                            editor.putFloat("balance", (float) registrationResponse.getBalance());
+                        }
+
+                        // Mark user as logged in
+                        editor.putBoolean("isLoggedIn", true);
+                        editor.apply();
+
+                        // Also store in SessionManager for consistency
+                        sessionManager.createLoginSession(
+                                registrationResponse.getToken(),
+                                registrationResponse.getUser().getUserId(),
+                                registrationResponse.getUser().getEmail(),
+                                registrationResponse.getUser().getName(),
+                                registrationResponse.getUser().getMobile(),
+                                registrationResponse.getUser().getProfilePic(),
+                                registrationResponse.getUser().getGender()
+                        );
+
                         showToast("Registration successful!");
                         navigateToMainActivity();
                     } else {
@@ -482,7 +533,7 @@ public class registration extends AppCompatActivity {
                         if (response.errorBody() != null) {
                             String errorBody = response.errorBody().string();
                             showToast("Error: " + errorBody);
-                            Log.d("error...................",errorBody);
+                            Log.d("RegistrationError", errorBody);
                         } else {
                             showToast("Error: " + response.code());
                         }
@@ -493,7 +544,7 @@ public class registration extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(Call<Fetch_submit_registration> call, Throwable t) {
+            public void onFailure(Call<LoginResponse> call, Throwable t) {
                 dismissProgressDialog();
                 showToast("Network error. Please try again.");
                 Log.e("Registration", "Error: ", t);
@@ -541,20 +592,6 @@ public class registration extends AppCompatActivity {
             }
         }
         return inSampleSize;
-    }
-
-    private void saveUserData(Fetch_submit_registration response) {
-        SharedPreferences prefs = getSharedPreferences("UserPrefs", MODE_PRIVATE);
-        SharedPreferences.Editor editor = prefs.edit();
-
-        editor.putString("authToken", response.getToken());
-        editor.putString("userId", response.getUser().getUid());
-        editor.putString("userEmail", response.getUser().getEmail());
-        editor.putString("userName", response.getUser().getName());
-        editor.putString("userMobile", response.getUser().getMobile());
-        editor.putString("profilePic", response.getUser().getProfilePic());
-
-        editor.apply();
     }
 
     private void showProgressDialog(String message) {
@@ -649,5 +686,66 @@ public class registration extends AppCompatActivity {
 
     private void showToast(String message) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
+
+    /**
+     * Session Manager class to handle user session
+     */
+    public static class SessionManager {
+        private final SharedPreferences pref;
+        private final SharedPreferences.Editor editor;
+        private final Context context;
+
+        public SessionManager(Context context) {
+            this.context = context;
+            pref = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+            editor = pref.edit();
+        }
+
+        public void createLoginSession(String token, String userId, String email,
+                                       String name, String mobile, String profilePic, String gender) {
+            editor.putBoolean(KEY_IS_LOGGED_IN, true);
+            editor.putString(KEY_AUTH_TOKEN, token);
+            editor.putString(KEY_USER_ID, userId);
+            editor.putString(KEY_USER_EMAIL, email);
+            editor.putString(KEY_USER_NAME, name);
+            editor.putString(KEY_USER_MOBILE, mobile);
+            editor.putString(KEY_PROFILE_PIC, profilePic);
+            editor.putString(KEY_USER_GENDER, gender);
+            editor.commit();
+        }
+
+        public boolean isLoggedIn() {
+            return pref.getBoolean(KEY_IS_LOGGED_IN, false);
+        }
+
+        public HashMap<String, String> getUserDetails() {
+            HashMap<String, String> user = new HashMap<>();
+            user.put(KEY_AUTH_TOKEN, pref.getString(KEY_AUTH_TOKEN, null));
+            user.put(KEY_USER_ID, pref.getString(KEY_USER_ID, null));
+            user.put(KEY_USER_EMAIL, pref.getString(KEY_USER_EMAIL, null));
+            user.put(KEY_USER_NAME, pref.getString(KEY_USER_NAME, null));
+            user.put(KEY_USER_MOBILE, pref.getString(KEY_USER_MOBILE, null));
+            user.put(KEY_PROFILE_PIC, pref.getString(KEY_PROFILE_PIC, null));
+            user.put(KEY_USER_GENDER, pref.getString(KEY_USER_GENDER, null));
+            return user;
+        }
+
+        public void logoutUser() {
+            editor.clear();
+            editor.commit();
+
+            // After logout redirect user to Login Activity
+            Intent intent = new Intent(context, Login_pg.class);
+            // Closing all the Activities
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            // Add new Flag to start new Activity
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(intent);
+        }
+
+        public String getAuthToken() {
+            return pref.getString(KEY_AUTH_TOKEN, null);
+        }
     }
 }

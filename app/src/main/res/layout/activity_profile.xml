@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
-    android:padding="16dp">
+    android:padding="16dp"
+    android:background="@drawable/login_bt_gradient">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -26,7 +28,7 @@
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:contentDescription="profile_picture_desc"
-            android:src="@drawable/profile"
+            android:src="@drawable/ic_profile"
             android:scaleType="centerCrop"
             android:layout_marginBottom="12dp" />
 
@@ -37,93 +39,301 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="4dp"
-            tools:text="John Doe" />
-
-        <TextView
-            android:id="@+id/tv_user_email"
-            style="@style/TextAppearance.AppCompat.Body1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
             android:textColor="@android:color/darker_gray"
-            tools:text="john.doe@example.com" />
+            tools:text="Hemanth Mudhiraj" />
 
-        <TextView
-            android:id="@+id/tv_user_phone"
-            style="@style/TextAppearance.AppCompat.Body1"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:textColor="@android:color/darker_gray"
-            tools:text="+1 234567890" />
+            android:orientation="vertical"
+            android:gravity="center">
 
-        <TextView
-            android:id="@+id/tv_user_location"
-            style="@style/TextAppearance.AppCompat.Body1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
-            android:textColor="@android:color/darker_gray"
-            tools:text="Current Location: New York, USA" />
 
-        <!-- Balance Info -->
-        <TextView
-            android:id="@+id/tv_balance"
-            style="@style/TextAppearance.AppCompat.Subhead"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:textColor="@android:color/holo_green_dark"
-            android:textStyle="bold"
-            tools:text="Balance: $100.00" />
 
-        <!-- Recharge Button -->
-        <Button
-            android:id="@+id/btn_recharge"
-            style="@style/Widget.AppCompat.Button.Colored"
+            <TextView
+                android:id="@+id/tv_user_email"
+                style="@style/TextAppearance.AppCompat.Body1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:textColor="@android:color/darker_gray"
+                tools:text="hemanthmudhiraj8055" />
+
+            <TextView
+                android:id="@+id/tv_user_phone"
+                style="@style/TextAppearance.AppCompat.Body1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:textColor="@android:color/darker_gray"
+                tools:text="+1 234567890" />
+
+            <!-- Balance Info -->
+            <TextView
+                android:id="@+id/tv_balance"
+                style="@style/TextAppearance.AppCompat.Subhead"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:textColor="@color/colorAccent"
+                android:textStyle="bold"
+                tools:text="Balance: Rs:100.00" />
+
+        </LinearLayout>
+
+        <!-- Action Buttons Row -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            android:padding="12dp"
-            android:text="recharge_account" />
+            android:orientation="horizontal"
+            android:background="@drawable/rounded_top_container"
+            android:gravity="center">
 
-        <!-- Call History Section -->
-        <TextView
-            style="@style/TextAppearance.AppCompat.Subhead"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:text="call_history"
-            android:textStyle="bold" />
+            <!-- Recharge Option -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:id="@+id/recharge_button">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rv_call_history"
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    app:cardCornerRadius="30dp"
+                    app:strokeColor="@color/colorPrimaryLight"
+                    app:strokeWidth="1dp"
+                    android:foreground="?attr/selectableItemBackgroundBorderless">
+
+                    <ImageButton
+                        android:id="@+id/btn_recharge"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:scaleType="centerInside"
+                        android:padding="16dp"
+                        android:src="@drawable/ic_recharge"
+                        android:contentDescription="Recharge"
+                        android:background="@color/white"
+                        app:tint="@color/colorPrimary" />
+                </com.google.android.material.card.MaterialCardView>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Recharge"
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="12sp"/>
+            </LinearLayout>
+
+            <!-- Call History Option -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:id="@+id/Call_history_button">
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    app:cardCornerRadius="30dp"
+                    app:strokeColor="@color/colorPrimaryLight"
+                    app:strokeWidth="1dp"
+                    android:foreground="?attr/selectableItemBackgroundBorderless">
+
+                    <ImageButton
+                        android:id="@+id/btn_call_history"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:scaleType="centerInside"
+                        android:padding="16dp"
+                        android:src="@drawable/ic_call_history"
+                        android:contentDescription="Call History"
+                        android:background="@color/white"
+                        app:tint="@color/colorPrimary" />
+                </com.google.android.material.card.MaterialCardView>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Call History"
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="12sp"/>
+            </LinearLayout>
+
+            <!-- Wishlist Option -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:id="@+id/wishlist_button">
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    app:cardCornerRadius="30dp"
+                    app:strokeColor="@color/colorPrimaryLight"
+                    app:strokeWidth="1dp"
+                    android:foreground="?attr/selectableItemBackgroundBorderless">
+
+                    <ImageButton
+                        android:id="@+id/btn_wishlist"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:scaleType="centerInside"
+                        android:padding="16dp"
+                        android:src="@drawable/ic_wishlist"
+                        android:contentDescription="Wishlist"
+                        android:background="@color/white"
+                        app:tint="@color/colorPrimary" />
+                </com.google.android.material.card.MaterialCardView>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Wishlist"
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="12sp"/>
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:nestedScrollingEnabled="false" />
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:id="@+id/recent_things">
 
-        <!-- Settings & Logout -->
-        <Button
+
+
+        <!-- Recent Recharges Section -->
+            <TextView
+                style="@style/TextAppearance.AppCompat.Subhead"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:text="Recent Recharges"
+                android:textStyle="bold"
+                android:textColor="@color/white"/>
+
+            <TextView
+                android:id="@+id/tv_no_recharge_history"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:text="No recharge history found"
+                android:visibility="gone" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_recharge_history"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:background="@drawable/rounded_corner"
+                android:nestedScrollingEnabled="false" />
+
+            <!-- Recent Calls Section -->
+            <TextView
+                style="@style/TextAppearance.AppCompat.Subhead"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:text="Recent Calls"
+                android:textStyle="bold"
+                android:textColor="@color/white"/>
+
+            <TextView
+                android:id="@+id/tv_no_call_history"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:text="No call history found"
+                android:visibility="gone" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_call_history"
+                android:layout_width="match_parent"
+                android:background="@drawable/rounded_corner"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:nestedScrollingEnabled="false" />
+
+            <!-- WishList -->
+            <TextView
+                style="@style/TextAppearance.AppCompat.Subhead"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:text="Wishlist Items"
+                android:textColor="@color/white"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tv_no_wishlist"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:text="No wishlist items found"
+                android:visibility="gone" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_wishlist"
+                android:background="@drawable/rounded_corner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:nestedScrollingEnabled="false" />
+
+        </LinearLayout>
+
+        <!-- Bottom Action Buttons -->
+        <ImageButton
             android:id="@+id/btn_settings"
-            style="@style/Widget.AppCompat.Button"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="48dp"
             android:layout_marginTop="16dp"
-            android:backgroundTint="#333030"
-            android:padding="12dp"
-            android:text="settings"
-            android:textColor="@android:color/white" />
+            android:background="@drawable/rounded_top_container"
+            android:src="@drawable/ic_settings"
+            android:drawablePadding="8dp"
+            android:text="Settings"
+            android:textColor="@android:color/white"
+            android:gravity="start|center_vertical"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp" />
 
-        <Button
+        <ImageButton
             android:id="@+id/btn_logout"
-            style="@style/Widget.AppCompat.Button"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="48dp"
             android:layout_marginTop="8dp"
-            android:backgroundTint="#D91616"
-            android:padding="12dp"
-            android:text="logout"
-            android:textColor="@android:color/white" />
+            android:background="@drawable/rounded_top_container"
+            android:src="@drawable/ic_logout"
+            android:drawablePadding="8dp"
+            android:text="Logout"
+            android:textColor="@android:color/white"
+            android:gravity="start|center_vertical"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp" />
+        <ImageButton
+        android:id="@+id/profile_btn_login"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/rounded_top_container"
+        android:src="@drawable/ic_login"
+        android:drawablePadding="8dp"
+        android:text="Login"
+        android:textColor="@android:color/white"
+        android:gravity="start|center_vertical"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp" />
 
     </LinearLayout>
 </ScrollView>

@@ -46,8 +46,7 @@
         android:background="@drawable/login_bt_gradient"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:elevation="8dp"
-        >
+        android:elevation="8dp">
 
         <!-- Switch Button -->
         <Switch
@@ -90,171 +89,207 @@
         android:layout_above="@id/button_container"
         android:name="com.google.android.gms.maps.SupportMapFragment"
         tools:layout="@layout/activity_main"/>
-    <!-- Place Details Card (initially hidden) -->
 
-    <!-- https://maps.gomaps.pro/maps/api/place/queryautocomplete/json?input= -->
-
-
-    <!-- Place Details Card -->
+    <!-- Scrollable Place Details Card -->
     <androidx.cardview.widget.CardView
         android:id="@+id/place_card"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="300dp"
         android:layout_above="@id/button_container"
-        android:elevation="16dp"
-        android:visibility="visible"
-        app:cardCornerRadius="12dp"
-        app:cardBackgroundColor="@android:color/white">
+        android:layout_below="@id/SearchBar"
 
-        <LinearLayout
+        android:layout_marginTop="150dp"
+        android:visibility="visible"
+        app:cardBackgroundColor="@android:color/white"
+        app:cardCornerRadius="12dp">
+
+        <ScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:fillViewport="true"
             android:background="@drawable/login_bt_gradient"
-            android:orientation="vertical">
-
-            <!-- Close button at top right -->
-            <ImageButton
-                android:id="@+id/btn_close_card"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_gravity="end"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:clickable="true"
-                android:contentDescription="Close"
-                android:focusable="true"
-                android:src="@drawable/ic_close"
-                app:tint="@android:color/darker_gray" />
-
-            <!-- Horizontal ScrollView for images -->
-            <HorizontalScrollView
-                android:layout_width="match_parent"
-                android:layout_height="200dp"
-                android:layout_marginLeft="16dp"
-                android:layout_marginRight="16dp"
-                android:scrollbars="none"
-                android:contentDescription="@string/horizontal_scroll_content_description">
-
-                <LinearLayout
-                    android:id="@+id/image_container"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:orientation="horizontal"
-                    android:importantForAccessibility="no"
-                    android:contentDescription="@string/image_container_content_description" />
-            </HorizontalScrollView>
+            >
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp">
+                android:orientation="vertical">
 
-                <!-- Title and category -->
+                <!-- Close button at top right -->
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <ImageButton
+                        android:id="@+id/btn_close_card"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:layout_alignParentEnd="true"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:clickable="true"
+                        android:contentDescription="Close"
+                        android:focusable="true"
+                        android:src="@drawable/ic_close"
+                        app:tint="@android:color/darker_gray" />
+                </RelativeLayout>
+
+                <!-- Single ImageView for displaying place image -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:id="@+id/place_name"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Charminar"
-                        android:textColor="@android:color/black"
-                        android:textSize="18sp"
-                        android:textStyle="bold" />
-
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:id="@+id/image_container">
                     <ImageView
-                        android:id="@+id/place_save"
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:src="@drawable/ic_bookmark_border"
-                        app:tint="@color/colorPrimary" />
-                </LinearLayout>
-
-                <TextView
-                    android:id="@+id/place_address"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="Charminar Rd, Char Kaman, Ghansi Bazaar, Hyderabad, Telangana 500002"
-                    android:textColor="@android:color/darker_gray"
-                    android:textSize="14sp" />
-
-                <!-- Rating and price -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
-
-<!--                    <RatingBar-->
-<!--                        -->
-<!--                        android:layout_width="wrap_content"-->
-<!--                        android:layout_height="wrap_content"-->
-<!--                        android:layout_weight="1"-->
-<!--                        android:isIndicator="true"-->
-
-<!--                        android:numStars="5"-->
-<!--                        android:stepSize="0.5"-->
-<!--                        android:transformPivotX="0dp"-->
-<!--                        android:transformPivotY="0dp" />-->
-                    <RatingBar
-                        android:id="@+id/place_rating"
-                        android:progressTint="@color/starRated"
-                        android:secondaryProgressTint="@color/starUnrated"
+                        android:id="@+id/place_image"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:backgroundTint="@color/starUnrated"/>
+                        android:layout_marginLeft="16dp"
+                        android:layout_marginRight="16dp"
+                        android:layout_marginTop="8dp"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/image_not_found" />
 
-                    <TextView
-                        android:id="@+id/rating_text"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="4dp"
-                        android:layout_weight="1"
-                        android:gravity="start|center_vertical"
-                        android:text="14,356"
-                        android:textColor="@color/white"
-                        android:textSize="14sp" />
                 </LinearLayout>
+
+
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:gravity="center"
-                    android:orientation="horizontal">
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
-                    <ImageButton
-                        android:id="@+id/btn_call"
-                        android:layout_width="0dp"
+                    <!-- Title and category -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
 
-                        android:contentDescription="Call"
-                        android:padding="12dp"
-                        android:scaleType="centerInside"
-                        android:src="@drawable/ic_call"
-                        app:tint="@color/colorPrimary" />
-                    <!-- android:background="?attr/selectableItemBackgroundBorderless"-->
+                        <TextView
+                            android:id="@+id/place_name"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Charminar"
+                            android:textColor="@color/white"
+                            android:textSize="18sp"
+                            android:textStyle="bold" />
 
-                    <ImageButton
-                        android:id="@+id/btn_share"
-                        android:layout_width="0dp"
+                        <ImageView
+                            android:id="@+id/place_save"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_bookmark_border"
+                            app:tint="@color/colorPrimary" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/place_address"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
+                        android:layout_marginTop="4dp"
+                        android:text="Charminar Rd, Char Kaman, Ghansi Bazaar, Hyderabad, Telangana 500002"
+                        android:textColor="@android:color/darker_gray"
+                        android:textSize="14sp" />
 
-                        android:contentDescription="Share"
-                        android:padding="12dp"
-                        android:src="@drawable/ic_share" />
-                    <!-- android:background="?attr/selectableItemBackgroundBorderless"-->
+                    <!-- Rating and price -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
 
+                        <RatingBar
+                            android:id="@+id/place_rating"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:backgroundTint="@color/starUnrated"
+                            android:progressTint="@color/starRated"
+                            android:secondaryProgressTint="@color/starUnrated" />
+
+                        <TextView
+                            android:id="@+id/rating_text"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="4dp"
+                            android:layout_weight="1"
+                            android:gravity="start|center_vertical"
+                            android:text="14,356"
+                            android:textColor="@android:color/black"
+                            android:textSize="14sp" />
+                    </LinearLayout>
+
+                    <!-- Additional details section -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="About this place:"
+                            android:textColor="@color/white"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/place_description"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:text="The Central University of Rajasthan (CURAJ), established in 2009, is a central university fully funded by the Government of India, aiming to be a dynamic and vibrant institution offering cutting-edge education"
+                            android:textColor="@android:color/darker_gray"
+                            android:textSize="14sp" />
+                    </LinearLayout>
+
+                    <!-- Action buttons -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:gravity="center"
+                        android:orientation="horizontal">
+
+                        <com.zegocloud.uikit.prebuilt.call.invite.widget.ZegoSendCallInvitationButton
+                            android:id="@+id/btn_voice_call"
+                            android:layout_width="70dp"
+                            android:layout_height="70dp"
+                            android:layout_weight="1"
+                            android:contentDescription="Voice Call"
+                            android:padding="12dp"
+                            app:tint="@color/colorPrimary" />
+<!--                        android:src="@drawable/ic_call"-->
+                        <View
+                            android:layout_width="2dp"
+                            android:layout_height="2dp"
+                             />
+                        <com.zegocloud.uikit.prebuilt.call.invite.widget.ZegoSendCallInvitationButton
+                            android:id="@+id/btn_call"
+                            android:layout_width="70dp"
+                            android:layout_height="70dp"
+                            android:layout_weight="1"
+                            android:contentDescription="Video Call"
+                            android:padding="12dp"
+                            android:scaleType="centerInside"
+                            app:tint="@color/colorPrimary" />
+
+<!--                        <ImageButton-->
+<!--                            android:id="@+id/btn_share"-->
+<!--                            android:layout_width="0dp"-->
+<!--                            android:layout_height="50dp"-->
+<!--                            android:layout_weight="1"-->
+<!--                            android:background="@color/white"-->
+<!--                            android:contentDescription="Share"-->
+<!--                            android:padding="12dp"-->
+<!--                            android:src="@drawable/ic_share" />-->
+                    </LinearLayout>
                 </LinearLayout>
             </LinearLayout>
-        </LinearLayout>
+        </ScrollView>
     </androidx.cardview.widget.CardView>
 </RelativeLayout>

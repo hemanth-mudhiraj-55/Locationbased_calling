@@ -1,6 +1,7 @@
 package com.example.a1;
 
 public class UserData {
+    private static UserData currentUser;
     private String userId;
     private String name;
     private String email;
@@ -8,9 +9,19 @@ public class UserData {
     private String gender;
     private String profilePic;
     private float accountBalance;
-    private String token; // For authentication
+    private String token;
 
-    // Getters and Setters
+    public static UserData getCurrentUser() {
+        if (currentUser == null) {
+            currentUser = new UserData();
+        }
+        return currentUser;
+    }
+
+    public static void setCurrentUser(UserData user) {
+        currentUser = user;
+    }
+
     public String getUserId() {
         return userId;
     }

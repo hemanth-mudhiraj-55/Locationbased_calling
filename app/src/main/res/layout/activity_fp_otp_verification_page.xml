@@ -10,13 +10,10 @@
     android:background="@drawable/login_bt_gradient"
     tools:context=".FP_OTP_Verification_Page">
 
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:fillViewport="true"
-        android:padding="20dp">
+
 
         <LinearLayout
+
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="20dp"
@@ -32,7 +29,7 @@
                 android:layout_gravity="center"
                 android:layout_marginBottom="20dp"
                 android:fontFamily="@font/splash_screen_font1"
-                android:text="OTP VERIFICATION"
+                android:text="OTP\nVERIFICATION"
                 android:textColor="@color/button_bg"
                 android:textSize="24sp" />
 
@@ -80,8 +77,8 @@
                         android:id="@+id/eMin"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="05"
-                        android:textColor="@color/white"
+                        android:text="02"
+                        android:textColor="@color/black"
                         android:textSize="18sp" />
 
                     <TextView
@@ -89,7 +86,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginHorizontal="2dp"
                         android:text=":"
-                        android:textColor="@color/white"
+                        android:textColor="@color/black"
                         android:textSize="18sp" />
 
                     <TextView
@@ -97,73 +94,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="00"
-                        android:textColor="@color/white"
-                        android:textSize="18sp" />
-                </LinearLayout>
-            </LinearLayout>
-
-            <!-- Mobile OTP Layout -->
-            <LinearLayout
-                android:id="@+id/mobile_otp_layout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:orientation="horizontal">
-
-                <EditText
-                    android:id="@+id/mobile_Otp"
-                    android:layout_width="0dp"
-                    android:layout_height="50dp"
-                    android:layout_weight="1"
-                    android:drawableLeft="@drawable/business_and_finance"
-                    android:drawablePadding="8dp"
-                    android:hint="Mobile OTP"
-                    android:inputType="number"
-                    android:maxLength="6"
-                    android:paddingStart="12dp"
-                    android:textColorHint="@color/registration_bg" />
-
-                <Button
-                    android:id="@+id/resend_2"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:backgroundTint="@color/button_bg"
-                    android:fontFamily="@font/splash_screen_font1"
-                    android:text="Resend"
-                    android:textColor="@android:color/white"
-                    android:visibility="gone" />
-
-                <LinearLayout
-                    android:id="@+id/mobile_timer_layout"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:gravity="center"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:id="@+id/eMin2"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="05"
-                        android:textColor="@color/white"
-                        android:textSize="18sp" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginHorizontal="2dp"
-                        android:text=":"
-                        android:textColor="@color/white"
-                        android:textSize="18sp" />
-
-                    <TextView
-                        android:id="@+id/eSec2"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="00"
-                        android:textColor="@color/white"
+                        android:textColor="@color/black"
                         android:textSize="18sp" />
                 </LinearLayout>
             </LinearLayout>
@@ -179,5 +110,5 @@
                 android:contentDescription="Verify OTP"
                 android:src="@drawable/forword_arrow" />
         </LinearLayout>
-    </ScrollView>
+
 </LinearLayout>

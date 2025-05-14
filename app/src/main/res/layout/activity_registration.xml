@@ -110,7 +110,7 @@
             android:layout_margin="4dp"
             android:background="@drawable/rounded_corner"
             android:drawableLeft="@drawable/ic_mail"
-            android:hint=" EMAIl"
+            android:hint=" EMAIL"
             android:textColorHint="@color/registration_bg"
             android:padding="10dp"
             android:textColor="@color/registration_bg" />

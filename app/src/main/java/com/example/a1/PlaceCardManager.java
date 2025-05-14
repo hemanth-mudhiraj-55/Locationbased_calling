@@ -4,6 +4,7 @@ import static im.zego.uikit.libuikitreport.CommonUtils.getApplication;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.util.Log;
 import android.view.View;
@@ -19,8 +20,13 @@ import androidx.cardview.widget.CardView;
 import com.squareup.picasso.Picasso;
 import com.zegocloud.uikit.prebuilt.call.ZegoUIKitPrebuiltCallService;
 import com.zegocloud.uikit.prebuilt.call.invite.ZegoUIKitPrebuiltCallInvitationConfig;
+import com.zegocloud.uikit.prebuilt.call.invite.widget.ZegoSendCallInvitationButton;
+import com.zegocloud.uikit.service.defines.ZegoUIKitUser;
 
 import java.io.IOException;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 import retrofit2.Call;
@@ -34,9 +40,11 @@ public class PlaceCardManager {
     private final TextView placeName, placeAddress, ratingText;
     private final RatingBar placeRating;
     private final ImageView placeSave;
-    private final ImageButton btnClose, btnCall, btnShare;
+    private final ImageButton btnClose;
+    private final ZegoSendCallInvitationButton btnCall,btnviocecall;
 
     private boolean isSaved = false;
+    private String sender;
     private Place currentPlace;
     private final retrofit_interface apiService;
 
@@ -51,9 +59,29 @@ public class PlaceCardManager {
         this.placeSave = rootView.findViewById(R.id.place_save);
         this.btnClose = rootView.findViewById(R.id.btn_close_card);
         this.btnCall = rootView.findViewById(R.id.btn_call);
-        this.btnShare = rootView.findViewById(R.id.btn_share);
+        this.btnviocecall = rootView.findViewById(R.id.btn_voice_call);
+        //this.btnShare = rootView.findViewById(R.id.btn_share);
 
         apiService = RetrofitClient.getApiService();
+
+        SharedPreferences sharedPreferences = context.getSharedPreferences("UserSession", Context.MODE_PRIVATE);
+        sender = sharedPreferences.getString("userId", null);
+
+
+        ZegoUIKitPrebuiltCallInvitationConfig callInvitationConfig = new ZegoUIKitPrebuiltCallInvitationConfig();
+        long appID = Long.parseLong(context.getString(R.string.Zego_app_id));
+        String appSign = context.getString(R.string.Zego_app_sign);
+
+        Log.e("Sender id",".............................................."+sender);
+
+        ZegoUIKitPrebuiltCallService.init(
+                getApplication(),
+                appID,
+                appSign,
+                sender,
+                sender,
+                callInvitationConfig
+        );
         setupListeners();
     }
 
@@ -66,33 +94,35 @@ public class PlaceCardManager {
             showToast(isSaved ? "Saved to favorites" : "Removed from favorites");
         });
 
-        btnCall.setOnClickListener(v -> {
 
 
-            ZegoUIKitPrebuiltCallInvitationConfig callInvitationConfig = new ZegoUIKitPrebuiltCallInvitationConfig();
-            ZegoUIKitPrebuiltCallService.init(getApplication(), R.string.Zego_app_id, String.valueOf(R.string.Zego_app_sign), "**", "**",callInvitationConfig);
+//        btnShare.setOnClickListener(v -> {
+//            if (currentPlace != null) {
+//                Intent shareIntent = new Intent(Intent.ACTION_SEND);
+//                shareIntent.setType("text/plain");
+//                shareIntent.putExtra(Intent.EXTRA_TEXT,
+//                        "Check out " + currentPlace.getName() + " at " +
+//                                currentPlace.getAddress() + "\n\n" +
+//                                "https://maps.google.com/?q=" + currentPlace.getLatLng().latitude +
+//                                "," + currentPlace.getLatLng().longitude);
+//                context.startActivity(Intent.createChooser(shareIntent, "Share via"));
+//            }
+//        });
+    }
 
-            if (currentPlace != null && currentPlace.getPhoneNumber() != null) {
-                Intent intent = new Intent(Intent.ACTION_DIAL);
-                intent.setData(Uri.parse("tel:" + currentPlace.getPhoneNumber()));
-                context.startActivity(intent);
-            } else {
-                showToast("Phone number not available");
-            }
-        });
+    private void setupVideoCall(String recevier) {
+        Log.e("Enterd",".............................................................................."+recevier);
+//        Log.e("VideoCall",recevier);
+        btnCall.setIsVideoCall(true);
+        btnCall.setResourceID("zego_uikit_call");
+        btnCall.setInvitees(Collections.singletonList(new ZegoUIKitUser(recevier,recevier)));
 
-        btnShare.setOnClickListener(v -> {
-            if (currentPlace != null) {
-                Intent shareIntent = new Intent(Intent.ACTION_SEND);
-                shareIntent.setType("text/plain");
-                shareIntent.putExtra(Intent.EXTRA_TEXT,
-                        "Check out " + currentPlace.getName() + " at " +
-                                currentPlace.getAddress() + "\n\n" +
-                                "https://maps.google.com/?q=" + currentPlace.getLatLng().latitude +
-                                "," + currentPlace.getLatLng().longitude);
-                context.startActivity(Intent.createChooser(shareIntent, "Share via"));
-            }
-        });
+    }
+
+    private void setupVoiceCall(String recevier) {
+        btnviocecall.setIsVideoCall(false);
+        btnviocecall.setResourceID("zego_uikit_call");
+        btnviocecall.setInvitees(Collections.singletonList(new ZegoUIKitUser(recevier,recevier)));
     }
 
     public void showPlaceCard(String placeId) {
@@ -207,5 +237,10 @@ public class PlaceCardManager {
         placeName.setText(firstWord);
         placeAddress.setText(Place_name);
         placeRating.setRating(4.5F);
+    }
+
+    public void set_Receiver_UID(String receiverUid) {
+        setupVoiceCall(receiverUid);
+        setupVideoCall(receiverUid);
     }
 }
